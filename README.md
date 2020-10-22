@@ -23,6 +23,12 @@ Then install it via:
 npm install enhanced_currency_conversion_calculator --save
 ```
 
+Finally, you need to build the module:
+
+```shell
+npm run build
+```
+
 ##### Local development
 
 To use the library locally without publishing to a remote npm registry, first install the dependencies by changing into the directory containing `package.json` (and this README). Let's call this `JAVASCRIPT_CLIENT_DIR`. Then run:
@@ -37,17 +43,21 @@ Next, [link](https://docs.npmjs.com/cli/link) it globally in npm with the follow
 npm link
 ```
 
-Finally, switch to the directory you want to use your enhanced_currency_conversion_calculator from, and run:
+To use the link you just defined in your project, switch to the directory you want to use your enhanced_currency_conversion_calculator from, and run:
 
 ```shell
 npm link /path/to/<JAVASCRIPT_CLIENT_DIR>
 ```
 
-You should now be able to `require('enhanced_currency_conversion_calculator')` in javascript files from the directory you ran the last command above from.
+Finally, you need to build the module:
 
-### git
+```shell
+npm run build
+```
 
-If the library is hosted at a git repository, e.g. https://github.com/GIT_USER_ID/GIT_REPO_ID
+#### git
+
+If the library is hosted at a git repository, e.g.https://github.com/GIT_USER_ID/GIT_REPO_ID
 then install it via:
 
 ```shell
@@ -56,7 +66,9 @@ then install it via:
 
 ### For browser
 
-The library also works in the browser environment via npm and [browserify](http://browserify.org/). After following the above steps with Node.js and installing browserify with `npm install -g browserify`, perform the following (assuming *main.js* is your entry file, that's to say your javascript file where you actually use this library):
+The library also works in the browser environment via npm and [browserify](http://browserify.org/). After following
+the above steps with Node.js and installing browserify with `npm install -g browserify`,
+perform the following (assuming *main.js* is your entry file):
 
 ```shell
 browserify main.js > bundle.js
@@ -94,7 +106,6 @@ var api = new EnhancedCurrencyConversionCalculator.ConversionRateIssuedApi()
 var opts = {
   'requestDate': 2020-02-14 // {String} Rate issued date (YYYY-mm-dd)
 };
-
 var callback = function(error, data, response) {
   if (error) {
     console.error(error);

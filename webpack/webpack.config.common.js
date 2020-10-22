@@ -15,7 +15,17 @@ module.exports = {
 		dist: resolve("src/index.js"),
 	},
 	output: {
+		library: "MastercardApiClient",
+		libraryTarget: "umd",
 		filename: "../[name]/main.js",
+	},
+	resolve: {
+		alias: {
+			"@": resolve("src"),
+			Utils: resolve("src/utils"),
+			model: resolve("src/model"),
+			api: resolve("src/api"),
+		},
 	},
 	module: {
 		rules: [
