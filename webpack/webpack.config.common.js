@@ -15,6 +15,8 @@ module.exports = {
 		dist: resolve("src/index.js"),
 	},
 	output: {
+		library: "MastercardApiClient",
+		libraryTarget: "commonjs",
 		filename: "../[name]/main.js",
 	},
 	devServer: {
