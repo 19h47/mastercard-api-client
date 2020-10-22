@@ -16,7 +16,7 @@ module.exports = {
 	},
 	output: {
 		library: "MastercardApiClient",
-		libraryTarget: "amd",
+		libraryTarget: "umd",
 		filename: "../[name]/main.js",
 	},
 	devServer: {
@@ -39,6 +39,11 @@ module.exports = {
 				test: /\.js$/,
 				exclude: /node_modules/,
 				loader: "babel-loader",
+			},
+			{
+				parser: {
+					amd: false,
+				},
 			},
 		],
 	},
