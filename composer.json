@@ -1,6 +1,6 @@
 {
 	"name": "19h47/mastercard-api-client",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"description": "The Enhanced Currency Conversion Calculator is a subscription-based service that provides access to Mastercard's current dates currency conversion rates as well as historical currency conversion rates. Additionally, the API provides access to European Central Bank (ECB) reference rates that European Economic Area (EEA) issuing customer may require for the purposes of compliance with EU Regulation 2019/518",
 	"keywords": [
 		"openapitools",
