@@ -1,16 +1,18 @@
 {
 	"name": "@19h47/mastercard-api-client",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Mastercard API client",
-	"main": "dist/bundle.js",
+	"main": "dist/main.js",
 	"scripts": {
-		"test": "mocha --recursive"
+		"test": "mocha --recursive",
+		"prod": "webpack --mode=production --config webpack/webpack.config.js",
+		"dev": "webpack --mode=development --config webpack/webpack.config.js",
+		"deploy": "npm login && npm run prod && npm publish"
 	},
 	"browser": {
 		"fs": false
 	},
 	"dependencies": {
-		"browserify": "^17.0.0",
 		"mastercard-client-encryption": "1.0.6",
 		"mastercard-oauth1-signer": "1.1.5",
 		"superagent": "5.1.0"
@@ -18,6 +20,20 @@
 	"devDependencies": {
 		"expect.js": "^0.3.1",
 		"mocha": "^5.2.0",
-		"sinon": "^7.2.0"
+		"sinon": "^7.2.0",
+		"@babel/core": "^7.12.3",
+		"@babel/plugin-transform-runtime": "^7.12.1",
+		"@babel/preset-env": "^7.12.1",
+		"@babel/runtime": "^7.12.1",
+		"babel-eslint": "^10.0.3",
+		"babel-loader": "^8.1.0",
+		"clean-webpack-plugin": "^3.0.0",
+		"core-js": "^3.6.5",
+		"prettier": "^2.1.2",
+		"webpack": "4.41.3",
+		"webpack-cli": "3.3.10",
+		"webpack-dev-server": "3.11.0",
+		"webpack-merge": "^5.2.0",
+		"webpack-notifier": "^1.8.0"
 	}
 }
