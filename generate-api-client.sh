@@ -1,19 +1,17 @@
-#!/bin/bash
+#!/bin/sh
 
-mv package.json package.json.bak
+mv composer.json composer.json.bak
 
-openapi-generator generate -i swagger.yaml -g javascript -o . -c config.json
+openapi-generator generate -g php -c config.json -i swagger.yaml -o .
 
 rm -rf ./docs/
 rm git_push.sh
 rm .openapi-generator-ignore
 rm .travis.yml
-
+rm -rf test/Model
 shopt -s extglob
-cd test
-rm -rf model
-cd api
-rm -fv !(TokenizeApi.spec.js)
+cd test/Api
+rm -fv !(TokenizeApiTest.php)
 cd ../..
 
-mv package.json.bak package.json
+mv composer.json.bak composer.json
