@@ -4582,659 +4582,735 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['superagent', 'querystring'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('superagent'), require('querystring'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.ApiClient = factory(root.superagent, root.querystring);
-  }
-}(this, function(superagent, querystring) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["superagent", "querystring"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(require("superagent"), require("querystring"));
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.ApiClient = factory(
+			root.superagent,
+			root.querystring
+		);
+	}
+})(this, function (superagent, querystring) {
+	"use strict";
 
-  /**
-   * @module ApiClient
-   * @version 1.0.0
-   */
+	/**
+	 * @module ApiClient
+	 * @version 1.0.0
+	 */
 
-  /**
-   * Manages low level client-server communications, parameter marshalling, etc. There should not be any need for an
-   * application to use this class directly - the *Api and model classes provide the public API for the service. The
-   * contents of this file should be regarded as internal but are documented for completeness.
-   * @alias module:ApiClient
-   * @class
-   */
-  var exports = function() {
-    /**
-     * The base URL against which to resolve every API call's (relative) path.
-     * @type {String}
-     * @default https://api.mastercard.com/enhanced/settlement/currencyrate/subscribed
-     */
-    this.basePath = 'https://api.mastercard.com/enhanced/settlement/currencyrate/subscribed'.replace(/\/+$/, '');
+	/**
+	 * Manages low level client-server communications, parameter marshalling, etc. There should not be any need for an
+	 * application to use this class directly - the *Api and model classes provide the public API for the service. The
+	 * contents of this file should be regarded as internal but are documented for completeness.
+	 * @alias module:ApiClient
+	 * @class
+	 */
+	var exports = function () {
+		/**
+		 * The base URL against which to resolve every API call's (relative) path.
+		 * @type {String}
+		 * @default https://api.mastercard.com/enhanced/settlement/currencyrate/subscribed
+		 */
+		this.basePath = "https://api.mastercard.com/enhanced/settlement/currencyrate/subscribed".replace(
+			/\/+$/,
+			""
+		);
 
-    /**
-     * The authentication methods to be included for all API calls.
-     * @type {Array.<String>}
-     */
-    this.authentications = {
-    };
-    /**
-     * The default HTTP headers to be included for all API calls.
-     * @type {Array.<String>}
-     * @default {}
-     */
-    this.defaultHeaders = {};
+		/**
+		 * The authentication methods to be included for all API calls.
+		 * @type {Array.<String>}
+		 */
+		this.authentications = {};
+		/**
+		 * The default HTTP headers to be included for all API calls.
+		 * @type {Array.<String>}
+		 * @default {}
+		 */
+		this.defaultHeaders = {};
 
-    /**
-     * The default HTTP timeout for all API calls.
-     * @type {Number}
-     * @default 60000
-     */
-    this.timeout = 60000;
+		/**
+		 * The default HTTP timeout for all API calls.
+		 * @type {Number}
+		 * @default 60000
+		 */
+		this.timeout = 60000;
 
-    /**
-     * If set to false an additional timestamp parameter is added to all API GET calls to
-     * prevent browser caching
-     * @type {Boolean}
-     * @default true
-     */
-    this.cache = true;
+		/**
+		 * If set to false an additional timestamp parameter is added to all API GET calls to
+		 * prevent browser caching
+		 * @type {Boolean}
+		 * @default true
+		 */
+		this.cache = true;
 
-    /**
-     * If set to true, the client will save the cookies from each server
-     * response, and return them in the next request.
-     * @default false
-     */
-    this.enableCookies = false;
+		/**
+		 * If set to true, the client will save the cookies from each server
+		 * response, and return them in the next request.
+		 * @default false
+		 */
+		this.enableCookies = false;
 
-    /*
-     * Used to save and return cookies in a node.js (non-browser) setting,
-     * if this.enableCookies is set to true.
-     */
-    if (typeof window === 'undefined') {
-      this.agent = new superagent.agent();
-    }
+		/*
+		 * Used to save and return cookies in a node.js (non-browser) setting,
+		 * if this.enableCookies is set to true.
+		 */
+		if (typeof window === "undefined") {
+			this.agent = new superagent.agent();
+		}
 
-    /*
-     * Allow user to override superagent agent
-     */
-    this.requestAgent = null;
+		/*
+		 * Allow user to override superagent agent
+		 */
+		this.requestAgent = null;
 
-    /*
-     * Allow user to add superagent plugins
-     */
-    this.plugins = null;
-  };
+		/*
+		 * Allow user to add superagent plugins
+		 */
+		this.plugins = null;
+	};
 
-  /**
-   * Returns a string representation for an actual parameter.
-   * @param param The actual parameter.
-   * @returns {String} The string representation of <code>param</code>.
-   */
-  exports.prototype.paramToString = function(param) {
-    if (param == undefined || param == null) {
-      return '';
-    }
-    if (param instanceof Date) {
-      return param.toJSON();
-    }
-    return param.toString();
-  };
+	/**
+	 * Returns a string representation for an actual parameter.
+	 * @param param The actual parameter.
+	 * @returns {String} The string representation of <code>param</code>.
+	 */
+	exports.prototype.paramToString = function (param) {
+		if (param == undefined || param == null) {
+			return "";
+		}
+		if (param instanceof Date) {
+			return param.toJSON();
+		}
+		return param.toString();
+	};
 
- /**
-   * Builds full URL by appending the given path to the base URL and replacing path parameter place-holders with parameter values.
-   * NOTE: query parameters are not handled here.
-   * @param {String} path The path to append to the base URL.
-   * @param {Object} pathParams The parameter values to append.
-   * @returns {String} The encoded path with parameter values substituted.
-   */
-  exports.prototype.buildUrl = function(path, pathParams, apiBasePath) {
-    if (!path.match(/^\//)) {
-      path = '/' + path;
-    }
-    var url = this.basePath + path;
+	/**
+	 * Builds full URL by appending the given path to the base URL and replacing path parameter place-holders with parameter values.
+	 * NOTE: query parameters are not handled here.
+	 * @param {String} path The path to append to the base URL.
+	 * @param {Object} pathParams The parameter values to append.
+	 * @returns {String} The encoded path with parameter values substituted.
+	 */
+	exports.prototype.buildUrl = function (path, pathParams, apiBasePath) {
+		if (!path.match(/^\//)) {
+			path = "/" + path;
+		}
+		var url = this.basePath + path;
 
+		// use API (operation, path) base path if defined
+		if (apiBasePath !== null && apiBasePath !== undefined) {
+			url = apiBasePath + path;
+		}
 
-    // use API (operation, path) base path if defined
-    if (apiBasePath !== null && apiBasePath !== undefined) {
-        url = apiBasePath + path;
-    }
+		var _this = this;
+		url = url.replace(/\{([\w-]+)\}/g, function (fullMatch, key) {
+			var value;
+			if (pathParams.hasOwnProperty(key)) {
+				value = _this.paramToString(pathParams[key]);
+			} else {
+				value = fullMatch;
+			}
+			return encodeURIComponent(value);
+		});
+		return url;
+	};
 
-    var _this = this;
-    url = url.replace(/\{([\w-]+)\}/g, function(fullMatch, key) {
-      var value;
-      if (pathParams.hasOwnProperty(key)) {
-        value = _this.paramToString(pathParams[key]);
-      } else {
-        value = fullMatch;
-      }
-      return encodeURIComponent(value);
-    });
-    return url;
-  };
+	/**
+	 * Checks whether the given content type represents JSON.<br>
+	 * JSON content type examples:<br>
+	 * <ul>
+	 * <li>application/json</li>
+	 * <li>application/json; charset=UTF8</li>
+	 * <li>APPLICATION/JSON</li>
+	 * </ul>
+	 * @param {String} contentType The MIME content type to check.
+	 * @returns {Boolean} <code>true</code> if <code>contentType</code> represents JSON, otherwise <code>false</code>.
+	 */
+	exports.prototype.isJsonMime = function (contentType) {
+		return Boolean(
+			contentType != null &&
+				contentType.match(/^application\/json(;.*)?$/i)
+		);
+	};
 
-  /**
-   * Checks whether the given content type represents JSON.<br>
-   * JSON content type examples:<br>
-   * <ul>
-   * <li>application/json</li>
-   * <li>application/json; charset=UTF8</li>
-   * <li>APPLICATION/JSON</li>
-   * </ul>
-   * @param {String} contentType The MIME content type to check.
-   * @returns {Boolean} <code>true</code> if <code>contentType</code> represents JSON, otherwise <code>false</code>.
-   */
-  exports.prototype.isJsonMime = function(contentType) {
-    return Boolean(contentType != null && contentType.match(/^application\/json(;.*)?$/i));
-  };
+	/**
+	 * Chooses a content type from the given array, with JSON preferred; i.e. return JSON if included, otherwise return the first.
+	 * @param {Array.<String>} contentTypes
+	 * @returns {String} The chosen content type, preferring JSON.
+	 */
+	exports.prototype.jsonPreferredMime = function (contentTypes) {
+		for (var i = 0; i < contentTypes.length; i++) {
+			if (this.isJsonMime(contentTypes[i])) {
+				return contentTypes[i];
+			}
+		}
+		return contentTypes[0];
+	};
 
-  /**
-   * Chooses a content type from the given array, with JSON preferred; i.e. return JSON if included, otherwise return the first.
-   * @param {Array.<String>} contentTypes
-   * @returns {String} The chosen content type, preferring JSON.
-   */
-  exports.prototype.jsonPreferredMime = function(contentTypes) {
-    for (var i = 0; i < contentTypes.length; i++) {
-      if (this.isJsonMime(contentTypes[i])) {
-        return contentTypes[i];
-      }
-    }
-    return contentTypes[0];
-  };
+	/**
+	 * Checks whether the given parameter value represents file-like content.
+	 * @param param The parameter to check.
+	 * @returns {Boolean} <code>true</code> if <code>param</code> represents a file.
+	 */
+	exports.prototype.isFileParam = function (param) {
+		// fs.ReadStream in Node.js and Electron (but not in runtime like browserify)
+		if (typeof require === "function") {
+			var fs;
+			try {
+				fs = require("fs");
+			} catch (err) {}
+			if (fs && fs.ReadStream && param instanceof fs.ReadStream) {
+				return true;
+			}
+		}
+		// Buffer in Node.js
+		if (typeof Buffer === "function" && param instanceof Buffer) {
+			return true;
+		}
+		// Blob in browser
+		if (typeof Blob === "function" && param instanceof Blob) {
+			return true;
+		}
+		// File in browser (it seems File object is also instance of Blob, but keep this for safe)
+		if (typeof File === "function" && param instanceof File) {
+			return true;
+		}
+		return false;
+	};
 
-  /**
-   * Checks whether the given parameter value represents file-like content.
-   * @param param The parameter to check.
-   * @returns {Boolean} <code>true</code> if <code>param</code> represents a file.
-   */
-  exports.prototype.isFileParam = function(param) {
-    // fs.ReadStream in Node.js and Electron (but not in runtime like browserify)
-    if (typeof require === 'function') {
-      var fs;
-      try {
-        fs = require('fs');
-      } catch (err) {}
-      if (fs && fs.ReadStream && param instanceof fs.ReadStream) {
-        return true;
-      }
-    }
-    // Buffer in Node.js
-    if (typeof Buffer === 'function' && param instanceof Buffer) {
-      return true;
-    }
-    // Blob in browser
-    if (typeof Blob === 'function' && param instanceof Blob) {
-      return true;
-    }
-    // File in browser (it seems File object is also instance of Blob, but keep this for safe)
-    if (typeof File === 'function' && param instanceof File) {
-      return true;
-    }
-    return false;
-  };
+	/**
+	 * Normalizes parameter values:
+	 * <ul>
+	 * <li>remove nils</li>
+	 * <li>keep files and arrays</li>
+	 * <li>format to string with `paramToString` for other cases</li>
+	 * </ul>
+	 * @param {Object.<String, Object>} params The parameters as object properties.
+	 * @returns {Object.<String, Object>} normalized parameters.
+	 */
+	exports.prototype.normalizeParams = function (params) {
+		var newParams = {};
+		for (var key in params) {
+			if (
+				params.hasOwnProperty(key) &&
+				params[key] != undefined &&
+				params[key] != null
+			) {
+				var value = params[key];
+				if (this.isFileParam(value) || Array.isArray(value)) {
+					newParams[key] = value;
+				} else {
+					newParams[key] = this.paramToString(value);
+				}
+			}
+		}
+		return newParams;
+	};
 
-  /**
-   * Normalizes parameter values:
-   * <ul>
-   * <li>remove nils</li>
-   * <li>keep files and arrays</li>
-   * <li>format to string with `paramToString` for other cases</li>
-   * </ul>
-   * @param {Object.<String, Object>} params The parameters as object properties.
-   * @returns {Object.<String, Object>} normalized parameters.
-   */
-  exports.prototype.normalizeParams = function(params) {
-    var newParams = {};
-    for (var key in params) {
-      if (params.hasOwnProperty(key) && params[key] != undefined && params[key] != null) {
-        var value = params[key];
-        if (this.isFileParam(value) || Array.isArray(value)) {
-          newParams[key] = value;
-        } else {
-          newParams[key] = this.paramToString(value);
-        }
-      }
-    }
-    return newParams;
-  };
+	/**
+	 * Enumeration of collection format separator strategies.
+	 * @enum {String}
+	 * @readonly
+	 */
+	exports.CollectionFormatEnum = {
+		/**
+		 * Comma-separated values. Value: <code>csv</code>
+		 * @const
+		 */
+		CSV: ",",
+		/**
+		 * Space-separated values. Value: <code>ssv</code>
+		 * @const
+		 */
+		SSV: " ",
+		/**
+		 * Tab-separated values. Value: <code>tsv</code>
+		 * @const
+		 */
+		TSV: "\t",
+		/**
+		 * Pipe(|)-separated values. Value: <code>pipes</code>
+		 * @const
+		 */
+		PIPES: "|",
+		/**
+		 * Native array. Value: <code>multi</code>
+		 * @const
+		 */
+		MULTI: "multi",
+	};
 
-  /**
-   * Enumeration of collection format separator strategies.
-   * @enum {String}
-   * @readonly
-   */
-  exports.CollectionFormatEnum = {
-    /**
-     * Comma-separated values. Value: <code>csv</code>
-     * @const
-     */
-    CSV: ',',
-    /**
-     * Space-separated values. Value: <code>ssv</code>
-     * @const
-     */
-    SSV: ' ',
-    /**
-     * Tab-separated values. Value: <code>tsv</code>
-     * @const
-     */
-    TSV: '\t',
-    /**
-     * Pipe(|)-separated values. Value: <code>pipes</code>
-     * @const
-     */
-    PIPES: '|',
-    /**
-     * Native array. Value: <code>multi</code>
-     * @const
-     */
-    MULTI: 'multi'
-  };
+	/**
+	 * Builds a string representation of an array-type actual parameter, according to the given collection format.
+	 * @param {Array} param An array parameter.
+	 * @param {module:ApiClient.CollectionFormatEnum} collectionFormat The array element separator strategy.
+	 * @returns {String|Array} A string representation of the supplied collection, using the specified delimiter. Returns
+	 * <code>param</code> as is if <code>collectionFormat</code> is <code>multi</code>.
+	 */
+	exports.prototype.buildCollectionParam = function buildCollectionParam(
+		param,
+		collectionFormat
+	) {
+		if (param == null) {
+			return null;
+		}
+		switch (collectionFormat) {
+			case "csv":
+				return param.map(this.paramToString).join(",");
+			case "ssv":
+				return param.map(this.paramToString).join(" ");
+			case "tsv":
+				return param.map(this.paramToString).join("\t");
+			case "pipes":
+				return param.map(this.paramToString).join("|");
+			case "multi":
+				// return the array directly as SuperAgent will handle it as expected
+				return param.map(this.paramToString);
+			default:
+				throw new Error(
+					"Unknown collection format: " + collectionFormat
+				);
+		}
+	};
 
-  /**
-   * Builds a string representation of an array-type actual parameter, according to the given collection format.
-   * @param {Array} param An array parameter.
-   * @param {module:ApiClient.CollectionFormatEnum} collectionFormat The array element separator strategy.
-   * @returns {String|Array} A string representation of the supplied collection, using the specified delimiter. Returns
-   * <code>param</code> as is if <code>collectionFormat</code> is <code>multi</code>.
-   */
-  exports.prototype.buildCollectionParam = function buildCollectionParam(param, collectionFormat) {
-    if (param == null) {
-      return null;
-    }
-    switch (collectionFormat) {
-      case 'csv':
-        return param.map(this.paramToString).join(',');
-      case 'ssv':
-        return param.map(this.paramToString).join(' ');
-      case 'tsv':
-        return param.map(this.paramToString).join('\t');
-      case 'pipes':
-        return param.map(this.paramToString).join('|');
-      case 'multi':
-        // return the array directly as SuperAgent will handle it as expected
-        return param.map(this.paramToString);
-      default:
-        throw new Error('Unknown collection format: ' + collectionFormat);
-    }
-  };
+	/**
+	 * Applies authentication headers to the request.
+	 * @param {Object} request The request object created by a <code>superagent()</code> call.
+	 * @param {Array.<String>} authNames An array of authentication method names.
+	 */
+	exports.prototype.applyAuthToRequest = function (request, authNames) {
+		var _this = this;
+		authNames.forEach(function (authName) {
+			var auth = _this.authentications[authName];
+			switch (auth.type) {
+				case "basic":
+					if (auth.username || auth.password) {
+						request.auth(auth.username || "", auth.password || "");
+					}
+					break;
+				case "bearer":
+					if (auth.accessToken) {
+						request.set({
+							Authorization: "Bearer " + auth.accessToken,
+						});
+					}
+					break;
+				case "apiKey":
+					if (auth.apiKey) {
+						var data = {};
+						if (auth.apiKeyPrefix) {
+							data[auth.name] =
+								auth.apiKeyPrefix + " " + auth.apiKey;
+						} else {
+							data[auth.name] = auth.apiKey;
+						}
+						if (auth["in"] === "header") {
+							request.set(data);
+						} else {
+							request.query(data);
+						}
+					}
+					break;
+				case "oauth2":
+					if (auth.accessToken) {
+						request.set({
+							Authorization: "Bearer " + auth.accessToken,
+						});
+					}
+					break;
+				default:
+					throw new Error(
+						"Unknown authentication type: " + auth.type
+					);
+			}
+		});
+	};
 
-  /**
-   * Applies authentication headers to the request.
-   * @param {Object} request The request object created by a <code>superagent()</code> call.
-   * @param {Array.<String>} authNames An array of authentication method names.
-   */
-  exports.prototype.applyAuthToRequest = function(request, authNames) {
-    var _this = this;
-    authNames.forEach(function(authName) {
-      var auth = _this.authentications[authName];
-      switch (auth.type) {
-        case 'basic':
-          if (auth.username || auth.password) {
-            request.auth(auth.username || '', auth.password || '');
-          }
-          break;
-        case 'bearer':
-          if (auth.accessToken) {
-            request.set({'Authorization': 'Bearer ' + auth.accessToken});
-          }
-          break;
-        case 'apiKey':
-          if (auth.apiKey) {
-            var data = {};
-            if (auth.apiKeyPrefix) {
-              data[auth.name] = auth.apiKeyPrefix + ' ' + auth.apiKey;
-            } else {
-              data[auth.name] = auth.apiKey;
-            }
-            if (auth['in'] === 'header') {
-              request.set(data);
-            } else {
-              request.query(data);
-            }
-          }
-          break;
-        case 'oauth2':
-          if (auth.accessToken) {
-            request.set({'Authorization': 'Bearer ' + auth.accessToken});
-          }
-          break;
-        default:
-          throw new Error('Unknown authentication type: ' + auth.type);
-      }
-    });
-  };
+	/**
+	 * Deserializes an HTTP response body into a value of the specified type.
+	 * @param {Object} response A SuperAgent response object.
+	 * @param {(String|Array.<String>|Object.<String, Object>|Function)} returnType The type to return. Pass a string for simple types
+	 * or the constructor function for a complex type. Pass an array containing the type name to return an array of that type. To
+	 * return an object, pass an object with one property whose name is the key type and whose value is the corresponding value type:
+	 * all properties on <code>data<code> will be converted to this type.
+	 * @returns A value of the specified type.
+	 */
+	exports.prototype.deserialize = function deserialize(response, returnType) {
+		if (response == null || returnType == null || response.status == 204) {
+			return null;
+		}
+		// Rely on SuperAgent for parsing response body.
+		// See http://visionmedia.github.io/superagent/#parsing-response-bodies
+		var data = response.body;
+		if (
+			data == null ||
+			(typeof data === "object" &&
+				typeof data.length === "undefined" &&
+				!Object.keys(data).length)
+		) {
+			// SuperAgent does not always produce a body; use the unparsed response as a fallback
+			data = response.text;
+		}
+		return exports.convertToType(data, returnType);
+	};
 
-  /**
-   * Deserializes an HTTP response body into a value of the specified type.
-   * @param {Object} response A SuperAgent response object.
-   * @param {(String|Array.<String>|Object.<String, Object>|Function)} returnType The type to return. Pass a string for simple types
-   * or the constructor function for a complex type. Pass an array containing the type name to return an array of that type. To
-   * return an object, pass an object with one property whose name is the key type and whose value is the corresponding value type:
-   * all properties on <code>data<code> will be converted to this type.
-   * @returns A value of the specified type.
-   */
-  exports.prototype.deserialize = function deserialize(response, returnType) {
-    if (response == null || returnType == null || response.status == 204) {
-      return null;
-    }
-    // Rely on SuperAgent for parsing response body.
-    // See http://visionmedia.github.io/superagent/#parsing-response-bodies
-    var data = response.body;
-    if (data == null || (typeof data === 'object' && typeof data.length === 'undefined' && !Object.keys(data).length)) {
-      // SuperAgent does not always produce a body; use the unparsed response as a fallback
-      data = response.text;
-    }
-    return exports.convertToType(data, returnType);
-  };
+	/**
+	 * Callback function to receive the result of the operation.
+	 * @callback module:ApiClient~callApiCallback
+	 * @param {String} error Error message, if any.
+	 * @param data The data returned by the service call.
+	 * @param {String} response The complete HTTP response.
+	 */
 
-  /**
-   * Callback function to receive the result of the operation.
-   * @callback module:ApiClient~callApiCallback
-   * @param {String} error Error message, if any.
-   * @param data The data returned by the service call.
-   * @param {String} response The complete HTTP response.
-   */
+	/**
+	 * Invokes the REST service using the supplied settings and parameters.
+	 * @param {String} path The base URL to invoke.
+	 * @param {String} httpMethod The HTTP method to use.
+	 * @param {Object.<String, String>} pathParams A map of path parameters and their values.
+	 * @param {Object.<String, Object>} queryParams A map of query parameters and their values.
+	 * @param {Object.<String, Object>} collectionQueryParams A map of collection query parameters and their values.
+	 * @param {Object.<String, Object>} headerParams A map of header parameters and their values.
+	 * @param {Object.<String, Object>} formParams A map of form parameters and their values.
+	 * @param {Object} bodyParam The value to pass as the request body.
+	 * @param {Array.<String>} authNames An array of authentication type names.
+	 * @param {Array.<String>} contentTypes An array of request MIME types.
+	 * @param {Array.<String>} accepts An array of acceptable response MIME types.
+	 * @param {(String|Array|ObjectFunction)} returnType The required type to return; can be a string for simple types or the
+	 * constructor for a complex type.
+	 * @param {module:ApiClient~callApiCallback} callback The callback function.
+	 * @returns {Object} The SuperAgent request object.
+	 */
+	exports.prototype.callApi = function callApi(
+		path,
+		httpMethod,
+		pathParams,
+		queryParams,
+		collectionQueryParams,
+		headerParams,
+		formParams,
+		bodyParam,
+		authNames,
+		contentTypes,
+		accepts,
+		returnType,
+		apiBasePath,
+		callback
+	) {
+		var _this = this;
+		var url = this.buildUrl(path, pathParams, apiBasePath);
+		var request = superagent(httpMethod, url);
 
-  /**
-   * Invokes the REST service using the supplied settings and parameters.
-   * @param {String} path The base URL to invoke.
-   * @param {String} httpMethod The HTTP method to use.
-   * @param {Object.<String, String>} pathParams A map of path parameters and their values.
-   * @param {Object.<String, Object>} queryParams A map of query parameters and their values.
-   * @param {Object.<String, Object>} collectionQueryParams A map of collection query parameters and their values.
-   * @param {Object.<String, Object>} headerParams A map of header parameters and their values.
-   * @param {Object.<String, Object>} formParams A map of form parameters and their values.
-   * @param {Object} bodyParam The value to pass as the request body.
-   * @param {Array.<String>} authNames An array of authentication type names.
-   * @param {Array.<String>} contentTypes An array of request MIME types.
-   * @param {Array.<String>} accepts An array of acceptable response MIME types.
-   * @param {(String|Array|ObjectFunction)} returnType The required type to return; can be a string for simple types or the
-   * constructor for a complex type.
-   * @param {module:ApiClient~callApiCallback} callback The callback function.
-   * @returns {Object} The SuperAgent request object.
-   */
-  exports.prototype.callApi = function callApi(path, httpMethod, pathParams,
-      queryParams, collectionQueryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts,
-      returnType, apiBasePath, callback) {
+		if (this.plugins !== null) {
+			for (var index in this.plugins) {
+				if (this.plugins.hasOwnProperty(index)) {
+					request.use(this.plugins[index]);
+				}
+			}
+		}
 
-    var _this = this;
-    var url = this.buildUrl(path, pathParams, apiBasePath);
-    var request = superagent(httpMethod, url);
+		// apply authentications
+		this.applyAuthToRequest(request, authNames);
 
-    if (this.plugins !== null) {
-        for (var index in this.plugins) {
-            if (this.plugins.hasOwnProperty(index)) {
-                request.use(this.plugins[index])
-            }
-        }
-    }
+		// set collection query parameters
+		for (var key in collectionQueryParams) {
+			if (collectionQueryParams.hasOwnProperty(key)) {
+				var param = collectionQueryParams[key];
+				if (param.collectionFormat === "csv") {
+					// SuperAgent normally percent-encodes all reserved characters in a query parameter. However,
+					// commas are used as delimiters for the 'csv' collectionFormat so they must not be encoded. We
+					// must therefore construct and encode 'csv' collection query parameters manually.
+					if (param.value != null) {
+						var value = param.value
+							.map(this.paramToString)
+							.map(encodeURIComponent)
+							.join(",");
+						request.query(encodeURIComponent(key) + "=" + value);
+					}
+				} else {
+					// All other collection query parameters should be treated as ordinary query parameters.
+					queryParams[key] = this.buildCollectionParam(
+						param.value,
+						param.collectionFormat
+					);
+				}
+			}
+		}
 
-    // apply authentications
-    this.applyAuthToRequest(request, authNames);
+		// set query parameters
+		if (httpMethod.toUpperCase() === "GET" && this.cache === false) {
+			queryParams["_"] = new Date().getTime();
+		}
+		request.query(this.normalizeParams(queryParams));
 
-    // set collection query parameters
-    for (var key in collectionQueryParams) {
-      if (collectionQueryParams.hasOwnProperty(key)) {
-        var param = collectionQueryParams[key];
-        if (param.collectionFormat === 'csv') {
-          // SuperAgent normally percent-encodes all reserved characters in a query parameter. However,
-          // commas are used as delimiters for the 'csv' collectionFormat so they must not be encoded. We
-          // must therefore construct and encode 'csv' collection query parameters manually.
-          if (param.value != null) {
-            var value = param.value.map(this.paramToString).map(encodeURIComponent).join(',');
-            request.query(encodeURIComponent(key) + "=" + value);
-          }
-        } else {
-          // All other collection query parameters should be treated as ordinary query parameters.
-          queryParams[key] = this.buildCollectionParam(param.value, param.collectionFormat);
-        }
-      }
-    }
+		// set header parameters
+		request
+			.set(this.defaultHeaders)
+			.set(this.normalizeParams(headerParams));
 
-    // set query parameters
-    if (httpMethod.toUpperCase() === 'GET' && this.cache === false) {
-        queryParams['_'] = new Date().getTime();
-    }
-    request.query(this.normalizeParams(queryParams));
+		// set requestAgent if it is set by user
+		if (this.requestAgent) {
+			request.agent(this.requestAgent);
+		}
 
-    // set header parameters
-    request.set(this.defaultHeaders).set(this.normalizeParams(headerParams));
+		// set request timeout
+		request.timeout(this.timeout);
 
+		var contentType = this.jsonPreferredMime(contentTypes);
+		if (contentType) {
+			// Issue with superagent and multipart/form-data (https://github.com/visionmedia/superagent/issues/746)
+			if (contentType != "multipart/form-data") {
+				request.type(contentType);
+			}
+		}
 
-    // set requestAgent if it is set by user
-    if (this.requestAgent) {
-      request.agent(this.requestAgent);
-    }
+		if (contentType === "application/x-www-form-urlencoded") {
+			request.send(
+				querystring.stringify(this.normalizeParams(formParams))
+			);
+		} else if (contentType == "multipart/form-data") {
+			var _formParams = this.normalizeParams(formParams);
+			for (var key in _formParams) {
+				if (_formParams.hasOwnProperty(key)) {
+					if (this.isFileParam(_formParams[key])) {
+						// file field
+						request.attach(key, _formParams[key]);
+					} else {
+						request.field(key, _formParams[key]);
+					}
+				}
+			}
+		} else if (bodyParam !== null && bodyParam !== undefined) {
+			if (!request.header["Content-Type"]) {
+				request.type("application/json");
+			}
+			request.send(bodyParam);
+		}
 
-    // set request timeout
-    request.timeout(this.timeout);
+		var accept = this.jsonPreferredMime(accepts);
+		if (accept) {
+			request.accept(accept);
+		}
 
-    var contentType = this.jsonPreferredMime(contentTypes);
-    if (contentType) {
-      // Issue with superagent and multipart/form-data (https://github.com/visionmedia/superagent/issues/746)
-      if(contentType != 'multipart/form-data') {
-        request.type(contentType);
-      }
-    }
+		if (returnType === "Blob") {
+			request.responseType("blob");
+		} else if (returnType === "String") {
+			request.responseType("string");
+		}
 
-    if (contentType === 'application/x-www-form-urlencoded') {
-      request.send(querystring.stringify(this.normalizeParams(formParams)));
-    } else if (contentType == 'multipart/form-data') {
-      var _formParams = this.normalizeParams(formParams);
-      for (var key in _formParams) {
-        if (_formParams.hasOwnProperty(key)) {
-          if (this.isFileParam(_formParams[key])) {
-            // file field
-            request.attach(key, _formParams[key]);
-          } else {
-            request.field(key, _formParams[key]);
-          }
-        }
-      }
-    } else if (bodyParam !== null && bodyParam !== undefined) {
-      if (!request.header['Content-Type']) {
-          request.type('application/json');
-      }
-      request.send(bodyParam);
-    }
+		// Attach previously saved cookies, if enabled
+		if (this.enableCookies) {
+			if (typeof window === "undefined") {
+				this.agent._attachCookies(request);
+			} else {
+				request.withCredentials();
+			}
+		}
 
-    var accept = this.jsonPreferredMime(accepts);
-    if (accept) {
-      request.accept(accept);
-    }
+		request.end(function (error, response) {
+			if (callback) {
+				var data = null;
+				if (!error) {
+					try {
+						data = _this.deserialize(response, returnType);
+						if (
+							_this.enableCookies &&
+							typeof window === "undefined"
+						) {
+							_this.agent._saveCookies(response);
+						}
+					} catch (err) {
+						error = err;
+					}
+				}
+				callback(error, data, response);
+			}
+		});
 
-    if (returnType === 'Blob') {
-      request.responseType('blob');
-    } else if (returnType === 'String') {
-      request.responseType('string');
-    }
+		return request;
+	};
 
-    // Attach previously saved cookies, if enabled
-    if (this.enableCookies){
-      if (typeof window === 'undefined') {
-        this.agent._attachCookies(request);
-      }
-      else {
-        request.withCredentials();
-      }
-    }
+	/**
+	 * Parses an ISO-8601 string representation of a date value.
+	 * @param {String} str The date value as a string.
+	 * @returns {Date} The parsed date object.
+	 */
+	exports.parseDate = function (str) {
+		return new Date(str.replace(/T/i, " "));
+	};
 
+	/**
+	 * Converts a value to the specified type.
+	 * @param {(String|Object)} data The data to convert, as a string or object.
+	 * @param {(String|Array.<String>|Object.<String, Object>|Function)} type The type to return. Pass a string for simple types
+	 * or the constructor function for a complex type. Pass an array containing the type name to return an array of that type. To
+	 * return an object, pass an object with one property whose name is the key type and whose value is the corresponding value type:
+	 * all properties on <code>data<code> will be converted to this type.
+	 * @returns An instance of the specified type or null or undefined if data is null or undefined.
+	 */
+	exports.convertToType = function (data, type) {
+		if (data === null || data === undefined) return data;
 
-    request.end(function(error, response) {
-      if (callback) {
-        var data = null;
-        if (!error) {
-          try {
-            data = _this.deserialize(response, returnType);
-            if (_this.enableCookies && typeof window === 'undefined'){
-              _this.agent._saveCookies(response);
-            }
-          } catch (err) {
-            error = err;
-          }
-        }
-        callback(error, data, response);
-      }
-    });
+		switch (type) {
+			case "Boolean":
+				return Boolean(data);
+			case "Integer":
+				return parseInt(data, 10);
+			case "Number":
+				return parseFloat(data);
+			case "String":
+				return String(data);
+			case "Date":
+				return this.parseDate(String(data));
+			case "Blob":
+				return data;
+			default:
+				if (type === Object) {
+					// generic object, return directly
+					return data;
+				} else if (typeof type.constructFromObject === "function") {
+					// for model type like User or enum class
+					return type.constructFromObject(data);
+				} else if (Array.isArray(type)) {
+					// for array type like: ['String']
+					var itemType = type[0];
+					return data.map(function (item) {
+						return exports.convertToType(item, itemType);
+					});
+				} else if (typeof type === "object") {
+					// for plain object type like: {'String': 'Integer'}
+					var keyType, valueType;
+					for (var k in type) {
+						if (type.hasOwnProperty(k)) {
+							keyType = k;
+							valueType = type[k];
+							break;
+						}
+					}
+					var result = {};
+					for (var k in data) {
+						if (data.hasOwnProperty(k)) {
+							var key = exports.convertToType(k, keyType);
+							var value = exports.convertToType(
+								data[k],
+								valueType
+							);
+							result[key] = value;
+						}
+					}
+					return result;
+				} else {
+					// for unknown type, return the data directly
+					return data;
+				}
+		}
+	};
 
-    return request;
-  };
+	/**
+	 * Gets an array of host settings
+	 * @returns An array of host settings
+	 */
+	exports.hostSettings = function () {
+		return [
+			{
+				url:
+					"https://api.mastercard.com/enhanced/settlement/currencyrate/subscribed",
+				description: "Production server (uses live data)",
+			},
+			{
+				url:
+					"https://sandbox.api.mastercard.com/enhanced/settlement/currencyrate/subscribed",
+				description: "Sandbox server (uses test data)",
+			},
+		];
+	};
 
-  /**
-   * Parses an ISO-8601 string representation of a date value.
-   * @param {String} str The date value as a string.
-   * @returns {Date} The parsed date object.
-   */
-  exports.parseDate = function(str) {
-    return new Date(str.replace(/T/i, ' '));
-  };
+	exports.getBasePathFromSettings = function (index, variables) {
+		var variables = variables || {};
+		var servers = this.hostSettings();
 
-  /**
-   * Converts a value to the specified type.
-   * @param {(String|Object)} data The data to convert, as a string or object.
-   * @param {(String|Array.<String>|Object.<String, Object>|Function)} type The type to return. Pass a string for simple types
-   * or the constructor function for a complex type. Pass an array containing the type name to return an array of that type. To
-   * return an object, pass an object with one property whose name is the key type and whose value is the corresponding value type:
-   * all properties on <code>data<code> will be converted to this type.
-   * @returns An instance of the specified type or null or undefined if data is null or undefined.
-   */
-  exports.convertToType = function(data, type) {
-    if (data === null || data === undefined)
-      return data
+		// check array index out of bound
+		if (index < 0 || index >= servers.length) {
+			throw new Error(
+				"Invalid index " +
+					index +
+					" when selecting the host settings. Must be less than " +
+					servers.length
+			);
+		}
 
-    switch (type) {
-      case 'Boolean':
-        return Boolean(data);
-      case 'Integer':
-        return parseInt(data, 10);
-      case 'Number':
-        return parseFloat(data);
-      case 'String':
-        return String(data);
-      case 'Date':
-        return this.parseDate(String(data));
-      case 'Blob':
-      	return data;
-      default:
-        if (type === Object) {
-          // generic object, return directly
-          return data;
-        } else if (typeof type.constructFromObject === 'function') {
-          // for model type like User or enum class
-          return type.constructFromObject(data);
-        } else if (Array.isArray(type)) {
-          // for array type like: ['String']
-          var itemType = type[0];
-          return data.map(function(item) {
-            return exports.convertToType(item, itemType);
-          });
-        } else if (typeof type === 'object') {
-          // for plain object type like: {'String': 'Integer'}
-          var keyType, valueType;
-          for (var k in type) {
-            if (type.hasOwnProperty(k)) {
-              keyType = k;
-              valueType = type[k];
-              break;
-            }
-          }
-          var result = {};
-          for (var k in data) {
-            if (data.hasOwnProperty(k)) {
-              var key = exports.convertToType(k, keyType);
-              var value = exports.convertToType(data[k], valueType);
-              result[key] = value;
-            }
-          }
-          return result;
-        } else {
-          // for unknown type, return the data directly
-          return data;
-        }
-    }
-  };
+		var server = servers[index];
+		var url = server["url"];
 
-  /**
-    * Gets an array of host settings
-    * @returns An array of host settings
-    */
-    exports.hostSettings = function() {
-        return [
-            {
-              'url': "https://api.mastercard.com/enhanced/settlement/currencyrate/subscribed",
-              'description': "Production server (uses live data)",
-            },
-            {
-              'url': "https://sandbox.api.mastercard.com/enhanced/settlement/currencyrate/subscribed",
-              'description': "Sandbox server (uses test data)",
-            }
-      ];
-    };
+		// go through variable and assign a value
+		for (var variable_name in server["variables"]) {
+			if (variable_name in variables) {
+				let variable = server["variables"][variable_name];
+				if (
+					!("enum_values" in variable) ||
+					variable["enum_values"].includes(variables[variable_name])
+				) {
+					url = url.replace(
+						"{" + variable_name + "}",
+						variables[variable_name]
+					);
+				} else {
+					throw new Error(
+						"The variable `" +
+							variable_name +
+							"` in the host URL has invalid value " +
+							variables[variable_name] +
+							". Must be " +
+							server["variables"][variable_name]["enum_values"] +
+							"."
+					);
+				}
+			} else {
+				// use default value
+				url = url.replace(
+					"{" + variable_name + "}",
+					server["variables"][variable_name]["default_value"]
+				);
+			}
+		}
+		return url;
+	};
 
-    exports.getBasePathFromSettings = function(index, variables) {
-        var variables = variables || {};
-        var servers = this.hostSettings();
+	/**
+	 * Constructs a new map or array model from REST data.
+	 * @param data {Object|Array} The REST data.
+	 * @param obj {Object|Array} The target object or array.
+	 */
+	exports.constructFromObject = function (data, obj, itemType) {
+		if (Array.isArray(data)) {
+			for (var i = 0; i < data.length; i++) {
+				if (data.hasOwnProperty(i))
+					obj[i] = exports.convertToType(data[i], itemType);
+			}
+		} else {
+			for (var k in data) {
+				if (data.hasOwnProperty(k))
+					obj[k] = exports.convertToType(data[k], itemType);
+			}
+		}
+	};
 
-        // check array index out of bound
-        if (index < 0 || index >= servers.length) {
-            throw new Error("Invalid index " + index + " when selecting the host settings. Must be less than " + servers.length);
-        }
+	/**
+	 * The default API client implementation.
+	 * @type {module:ApiClient}
+	 */
+	exports.instance = new exports();
 
-        var server = servers[index];
-        var url = server['url'];
-
-        // go through variable and assign a value
-        for (var variable_name in server['variables']) {
-            if (variable_name in variables) {
-                let variable = server['variables'][variable_name];
-                if ( !('enum_values' in variable) || variable['enum_values'].includes(variables[variable_name]) ) {
-                    url = url.replace("{" + variable_name + "}", variables[variable_name]);
-                } else {
-                    throw new Error("The variable `" + variable_name + "` in the host URL has invalid value " + variables[variable_name] + ". Must be " + server['variables'][variable_name]['enum_values'] + ".");
-                }
-            } else {
-                // use default value
-                url = url.replace("{" + variable_name + "}", server['variables'][variable_name]['default_value'])
-            }
-        }
-        return url;
-    };
-
-  /**
-   * Constructs a new map or array model from REST data.
-   * @param data {Object|Array} The REST data.
-   * @param obj {Object|Array} The target object or array.
-   */
-  exports.constructFromObject = function(data, obj, itemType) {
-    if (Array.isArray(data)) {
-      for (var i = 0; i < data.length; i++) {
-        if (data.hasOwnProperty(i))
-          obj[i] = exports.convertToType(data[i], itemType);
-      }
-    } else {
-      for (var k in data) {
-        if (data.hasOwnProperty(k))
-          obj[k] = exports.convertToType(data[k], itemType);
-      }
-    }
-  };
-
-  /**
-   * The default API client implementation.
-   * @type {module:ApiClient}
-   */
-  exports.instance = new exports();
-
-  return exports;
-}));
+	return exports;
+});
 
 }).call(this)}).call(this,require("buffer").Buffer)
 },{"buffer":3,"fs":2,"querystring":7,"superagent":11}],17:[function(require,module,exports){
@@ -5660,153 +5736,216 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient', 'model/ECBConversionObject', 'model/EcbError', 'model/EcbMcRateIssued', 'model/EnhancedCurrency', 'model/EnhancedCurrencyConversionData', 'model/EnhancedCurrencyConversionResponse', 'model/EnhancedEcbCurrencies', 'model/EnhancedEcbCurrencyResponse', 'model/EnhancedMastercardCurrencies', 'model/EnhancedMastercardCurrencyResponse', 'model/EnhancedSettlementRateIssued', 'model/EnhancedSettlementRateIssuedResponse', 'model/ErrorResponse', 'model/Errors', 'model/MastercardConversionObject', 'api/ConversionRateIssuedApi', 'api/ConversionRateSummaryApi', 'api/EcbCurrenciesApi', 'api/MastercardCurrenciesApi'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('./ApiClient'), require('./model/ECBConversionObject'), require('./model/EcbError'), require('./model/EcbMcRateIssued'), require('./model/EnhancedCurrency'), require('./model/EnhancedCurrencyConversionData'), require('./model/EnhancedCurrencyConversionResponse'), require('./model/EnhancedEcbCurrencies'), require('./model/EnhancedEcbCurrencyResponse'), require('./model/EnhancedMastercardCurrencies'), require('./model/EnhancedMastercardCurrencyResponse'), require('./model/EnhancedSettlementRateIssued'), require('./model/EnhancedSettlementRateIssuedResponse'), require('./model/ErrorResponse'), require('./model/Errors'), require('./model/MastercardConversionObject'), require('./api/ConversionRateIssuedApi'), require('./api/ConversionRateSummaryApi'), require('./api/EcbCurrenciesApi'), require('./api/MastercardCurrenciesApi'));
-  }
-}(function(ApiClient, ECBConversionObject, EcbError, EcbMcRateIssued, EnhancedCurrency, EnhancedCurrencyConversionData, EnhancedCurrencyConversionResponse, EnhancedEcbCurrencies, EnhancedEcbCurrencyResponse, EnhancedMastercardCurrencies, EnhancedMastercardCurrencyResponse, EnhancedSettlementRateIssued, EnhancedSettlementRateIssuedResponse, ErrorResponse, Errors, MastercardConversionObject, ConversionRateIssuedApi, ConversionRateSummaryApi, EcbCurrenciesApi, MastercardCurrenciesApi) {
-  'use strict';
+(function (factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define([
+			"ApiClient",
+			"model/ECBConversionObject",
+			"model/EcbError",
+			"model/EcbMcRateIssued",
+			"model/EnhancedCurrency",
+			"model/EnhancedCurrencyConversionData",
+			"model/EnhancedCurrencyConversionResponse",
+			"model/EnhancedEcbCurrencies",
+			"model/EnhancedEcbCurrencyResponse",
+			"model/EnhancedMastercardCurrencies",
+			"model/EnhancedMastercardCurrencyResponse",
+			"model/EnhancedSettlementRateIssued",
+			"model/EnhancedSettlementRateIssuedResponse",
+			"model/ErrorResponse",
+			"model/Errors",
+			"model/MastercardConversionObject",
+			"api/ConversionRateIssuedApi",
+			"api/ConversionRateSummaryApi",
+			"api/EcbCurrenciesApi",
+			"api/MastercardCurrenciesApi",
+		], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(
+			require("./ApiClient"),
+			require("./model/ECBConversionObject"),
+			require("./model/EcbError"),
+			require("./model/EcbMcRateIssued"),
+			require("./model/EnhancedCurrency"),
+			require("./model/EnhancedCurrencyConversionData"),
+			require("./model/EnhancedCurrencyConversionResponse"),
+			require("./model/EnhancedEcbCurrencies"),
+			require("./model/EnhancedEcbCurrencyResponse"),
+			require("./model/EnhancedMastercardCurrencies"),
+			require("./model/EnhancedMastercardCurrencyResponse"),
+			require("./model/EnhancedSettlementRateIssued"),
+			require("./model/EnhancedSettlementRateIssuedResponse"),
+			require("./model/ErrorResponse"),
+			require("./model/Errors"),
+			require("./model/MastercardConversionObject"),
+			require("./api/ConversionRateIssuedApi"),
+			require("./api/ConversionRateSummaryApi"),
+			require("./api/EcbCurrenciesApi"),
+			require("./api/MastercardCurrenciesApi")
+		);
+	}
+})(function (
+	ApiClient,
+	ECBConversionObject,
+	EcbError,
+	EcbMcRateIssued,
+	EnhancedCurrency,
+	EnhancedCurrencyConversionData,
+	EnhancedCurrencyConversionResponse,
+	EnhancedEcbCurrencies,
+	EnhancedEcbCurrencyResponse,
+	EnhancedMastercardCurrencies,
+	EnhancedMastercardCurrencyResponse,
+	EnhancedSettlementRateIssued,
+	EnhancedSettlementRateIssuedResponse,
+	ErrorResponse,
+	Errors,
+	MastercardConversionObject,
+	ConversionRateIssuedApi,
+	ConversionRateSummaryApi,
+	EcbCurrenciesApi,
+	MastercardCurrenciesApi
+) {
+	"use strict";
 
-  /**
-   * The_Enhanced_Currency_Conversion_Calculator_is_a_subscription_based_service_that_provides_access_to_Mastercards_current_dates_currency_conversion_rates_as_well_as_historical_currency_conversion_rates__Additionally_the_API_provides_access_to_European_Central_Bank__ECB_reference_rates_that_European_Economic_Area__EEA_issuing_customer_may_require_for_the_purposes_of_compliance_with_EU_Regulation_2019_518.<br>
-   * The <code>index</code> module provides access to constructors for all the classes which comprise the public API.
-   * <p>
-   * An AMD (recommended!) or CommonJS application will generally do something equivalent to the following:
-   * <pre>
-   * var EnhancedCurrencyConversionCalculator = require('index'); // See note below*.
-   * var xxxSvc = new EnhancedCurrencyConversionCalculator.XxxApi(); // Allocate the API class we're going to use.
-   * var yyyModel = new EnhancedCurrencyConversionCalculator.Yyy(); // Construct a model instance.
-   * yyyModel.someProperty = 'someValue';
-   * ...
-   * var zzz = xxxSvc.doSomething(yyyModel); // Invoke the service.
-   * ...
-   * </pre>
-   * <em>*NOTE: For a top-level AMD script, use require(['index'], function(){...})
-   * and put the application logic within the callback function.</em>
-   * </p>
-   * <p>
-   * A non-AMD browser application (discouraged) might do something like this:
-   * <pre>
-   * var xxxSvc = new EnhancedCurrencyConversionCalculator.XxxApi(); // Allocate the API class we're going to use.
-   * var yyy = new EnhancedCurrencyConversionCalculator.Yyy(); // Construct a model instance.
-   * yyyModel.someProperty = 'someValue';
-   * ...
-   * var zzz = xxxSvc.doSomething(yyyModel); // Invoke the service.
-   * ...
-   * </pre>
-   * </p>
-   * @module index
-   * @version 1.0.0
-   */
-  var exports = {
-    /**
-     * The ApiClient constructor.
-     * @property {module:ApiClient}
-     */
-    ApiClient: ApiClient,
-    /**
-     * The ECBConversionObject model constructor.
-     * @property {module:model/ECBConversionObject}
-     */
-    ECBConversionObject: ECBConversionObject,
-    /**
-     * The EcbError model constructor.
-     * @property {module:model/EcbError}
-     */
-    EcbError: EcbError,
-    /**
-     * The EcbMcRateIssued model constructor.
-     * @property {module:model/EcbMcRateIssued}
-     */
-    EcbMcRateIssued: EcbMcRateIssued,
-    /**
-     * The EnhancedCurrency model constructor.
-     * @property {module:model/EnhancedCurrency}
-     */
-    EnhancedCurrency: EnhancedCurrency,
-    /**
-     * The EnhancedCurrencyConversionData model constructor.
-     * @property {module:model/EnhancedCurrencyConversionData}
-     */
-    EnhancedCurrencyConversionData: EnhancedCurrencyConversionData,
-    /**
-     * The EnhancedCurrencyConversionResponse model constructor.
-     * @property {module:model/EnhancedCurrencyConversionResponse}
-     */
-    EnhancedCurrencyConversionResponse: EnhancedCurrencyConversionResponse,
-    /**
-     * The EnhancedEcbCurrencies model constructor.
-     * @property {module:model/EnhancedEcbCurrencies}
-     */
-    EnhancedEcbCurrencies: EnhancedEcbCurrencies,
-    /**
-     * The EnhancedEcbCurrencyResponse model constructor.
-     * @property {module:model/EnhancedEcbCurrencyResponse}
-     */
-    EnhancedEcbCurrencyResponse: EnhancedEcbCurrencyResponse,
-    /**
-     * The EnhancedMastercardCurrencies model constructor.
-     * @property {module:model/EnhancedMastercardCurrencies}
-     */
-    EnhancedMastercardCurrencies: EnhancedMastercardCurrencies,
-    /**
-     * The EnhancedMastercardCurrencyResponse model constructor.
-     * @property {module:model/EnhancedMastercardCurrencyResponse}
-     */
-    EnhancedMastercardCurrencyResponse: EnhancedMastercardCurrencyResponse,
-    /**
-     * The EnhancedSettlementRateIssued model constructor.
-     * @property {module:model/EnhancedSettlementRateIssued}
-     */
-    EnhancedSettlementRateIssued: EnhancedSettlementRateIssued,
-    /**
-     * The EnhancedSettlementRateIssuedResponse model constructor.
-     * @property {module:model/EnhancedSettlementRateIssuedResponse}
-     */
-    EnhancedSettlementRateIssuedResponse: EnhancedSettlementRateIssuedResponse,
-    /**
-     * The ErrorResponse model constructor.
-     * @property {module:model/ErrorResponse}
-     */
-    ErrorResponse: ErrorResponse,
-    /**
-     * The Errors model constructor.
-     * @property {module:model/Errors}
-     */
-    Errors: Errors,
-    /**
-     * The MastercardConversionObject model constructor.
-     * @property {module:model/MastercardConversionObject}
-     */
-    MastercardConversionObject: MastercardConversionObject,
-    /**
-     * The ConversionRateIssuedApi service constructor.
-     * @property {module:api/ConversionRateIssuedApi}
-     */
-    ConversionRateIssuedApi: ConversionRateIssuedApi,
-    /**
-     * The ConversionRateSummaryApi service constructor.
-     * @property {module:api/ConversionRateSummaryApi}
-     */
-    ConversionRateSummaryApi: ConversionRateSummaryApi,
-    /**
-     * The EcbCurrenciesApi service constructor.
-     * @property {module:api/EcbCurrenciesApi}
-     */
-    EcbCurrenciesApi: EcbCurrenciesApi,
-    /**
-     * The MastercardCurrenciesApi service constructor.
-     * @property {module:api/MastercardCurrenciesApi}
-     */
-    MastercardCurrenciesApi: MastercardCurrenciesApi
-  };
+	/**
+	 * The_Enhanced_Currency_Conversion_Calculator_is_a_subscription_based_service_that_provides_access_to_Mastercards_current_dates_currency_conversion_rates_as_well_as_historical_currency_conversion_rates__Additionally_the_API_provides_access_to_European_Central_Bank__ECB_reference_rates_that_European_Economic_Area__EEA_issuing_customer_may_require_for_the_purposes_of_compliance_with_EU_Regulation_2019_518.<br>
+	 * The <code>index</code> module provides access to constructors for all the classes which comprise the public API.
+	 * <p>
+	 * An AMD (recommended!) or CommonJS application will generally do something equivalent to the following:
+	 * <pre>
+	 * var EnhancedCurrencyConversionCalculator = require('index'); // See note below*.
+	 * var xxxSvc = new EnhancedCurrencyConversionCalculator.XxxApi(); // Allocate the API class we're going to use.
+	 * var yyyModel = new EnhancedCurrencyConversionCalculator.Yyy(); // Construct a model instance.
+	 * yyyModel.someProperty = 'someValue';
+	 * ...
+	 * var zzz = xxxSvc.doSomething(yyyModel); // Invoke the service.
+	 * ...
+	 * </pre>
+	 * <em>*NOTE: For a top-level AMD script, use require(['index'], function(){...})
+	 * and put the application logic within the callback function.</em>
+	 * </p>
+	 * <p>
+	 * A non-AMD browser application (discouraged) might do something like this:
+	 * <pre>
+	 * var xxxSvc = new EnhancedCurrencyConversionCalculator.XxxApi(); // Allocate the API class we're going to use.
+	 * var yyy = new EnhancedCurrencyConversionCalculator.Yyy(); // Construct a model instance.
+	 * yyyModel.someProperty = 'someValue';
+	 * ...
+	 * var zzz = xxxSvc.doSomething(yyyModel); // Invoke the service.
+	 * ...
+	 * </pre>
+	 * </p>
+	 * @module index
+	 * @version 1.0.0
+	 */
+	var exports = {
+		/**
+		 * The ApiClient constructor.
+		 * @property {module:ApiClient}
+		 */
+		ApiClient: ApiClient,
+		/**
+		 * The ECBConversionObject model constructor.
+		 * @property {module:model/ECBConversionObject}
+		 */
+		ECBConversionObject: ECBConversionObject,
+		/**
+		 * The EcbError model constructor.
+		 * @property {module:model/EcbError}
+		 */
+		EcbError: EcbError,
+		/**
+		 * The EcbMcRateIssued model constructor.
+		 * @property {module:model/EcbMcRateIssued}
+		 */
+		EcbMcRateIssued: EcbMcRateIssued,
+		/**
+		 * The EnhancedCurrency model constructor.
+		 * @property {module:model/EnhancedCurrency}
+		 */
+		EnhancedCurrency: EnhancedCurrency,
+		/**
+		 * The EnhancedCurrencyConversionData model constructor.
+		 * @property {module:model/EnhancedCurrencyConversionData}
+		 */
+		EnhancedCurrencyConversionData: EnhancedCurrencyConversionData,
+		/**
+		 * The EnhancedCurrencyConversionResponse model constructor.
+		 * @property {module:model/EnhancedCurrencyConversionResponse}
+		 */
+		EnhancedCurrencyConversionResponse: EnhancedCurrencyConversionResponse,
+		/**
+		 * The EnhancedEcbCurrencies model constructor.
+		 * @property {module:model/EnhancedEcbCurrencies}
+		 */
+		EnhancedEcbCurrencies: EnhancedEcbCurrencies,
+		/**
+		 * The EnhancedEcbCurrencyResponse model constructor.
+		 * @property {module:model/EnhancedEcbCurrencyResponse}
+		 */
+		EnhancedEcbCurrencyResponse: EnhancedEcbCurrencyResponse,
+		/**
+		 * The EnhancedMastercardCurrencies model constructor.
+		 * @property {module:model/EnhancedMastercardCurrencies}
+		 */
+		EnhancedMastercardCurrencies: EnhancedMastercardCurrencies,
+		/**
+		 * The EnhancedMastercardCurrencyResponse model constructor.
+		 * @property {module:model/EnhancedMastercardCurrencyResponse}
+		 */
+		EnhancedMastercardCurrencyResponse: EnhancedMastercardCurrencyResponse,
+		/**
+		 * The EnhancedSettlementRateIssued model constructor.
+		 * @property {module:model/EnhancedSettlementRateIssued}
+		 */
+		EnhancedSettlementRateIssued: EnhancedSettlementRateIssued,
+		/**
+		 * The EnhancedSettlementRateIssuedResponse model constructor.
+		 * @property {module:model/EnhancedSettlementRateIssuedResponse}
+		 */
+		EnhancedSettlementRateIssuedResponse: EnhancedSettlementRateIssuedResponse,
+		/**
+		 * The ErrorResponse model constructor.
+		 * @property {module:model/ErrorResponse}
+		 */
+		ErrorResponse: ErrorResponse,
+		/**
+		 * The Errors model constructor.
+		 * @property {module:model/Errors}
+		 */
+		Errors: Errors,
+		/**
+		 * The MastercardConversionObject model constructor.
+		 * @property {module:model/MastercardConversionObject}
+		 */
+		MastercardConversionObject: MastercardConversionObject,
+		/**
+		 * The ConversionRateIssuedApi service constructor.
+		 * @property {module:api/ConversionRateIssuedApi}
+		 */
+		ConversionRateIssuedApi: ConversionRateIssuedApi,
+		/**
+		 * The ConversionRateSummaryApi service constructor.
+		 * @property {module:api/ConversionRateSummaryApi}
+		 */
+		ConversionRateSummaryApi: ConversionRateSummaryApi,
+		/**
+		 * The EcbCurrenciesApi service constructor.
+		 * @property {module:api/EcbCurrenciesApi}
+		 */
+		EcbCurrenciesApi: EcbCurrenciesApi,
+		/**
+		 * The MastercardCurrenciesApi service constructor.
+		 * @property {module:api/MastercardCurrenciesApi}
+		 */
+		MastercardCurrenciesApi: MastercardCurrenciesApi,
+	};
 
-  return exports;
-}));
+	return exports;
+});
 
 },{"./ApiClient":16,"./api/ConversionRateIssuedApi":17,"./api/ConversionRateSummaryApi":18,"./api/EcbCurrenciesApi":19,"./api/MastercardCurrenciesApi":20,"./model/ECBConversionObject":22,"./model/EcbError":23,"./model/EcbMcRateIssued":24,"./model/EnhancedCurrency":25,"./model/EnhancedCurrencyConversionData":26,"./model/EnhancedCurrencyConversionResponse":27,"./model/EnhancedEcbCurrencies":28,"./model/EnhancedEcbCurrencyResponse":29,"./model/EnhancedMastercardCurrencies":30,"./model/EnhancedMastercardCurrencyResponse":31,"./model/EnhancedSettlementRateIssued":32,"./model/EnhancedSettlementRateIssuedResponse":33,"./model/ErrorResponse":34,"./model/Errors":35,"./model/MastercardConversionObject":36}],22:[function(require,module,exports){
 /**
@@ -5825,94 +5964,101 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.ECBConversionObject = factory(root.EnhancedCurrencyConversionCalculator.ApiClient);
-  }
-}(this, function(ApiClient) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(require("../ApiClient"));
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.ECBConversionObject = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient
+		);
+	}
+})(this, function (ApiClient) {
+	"use strict";
 
+	/**
+	 * The ECBConversionObject model module.
+	 * @module model/ECBConversionObject
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>ECBConversionObject</code>.
+	 * @alias module:model/ECBConversionObject
+	 * @class
+	 */
+	var exports = function () {
+		var _this = this;
+	};
 
-  /**
-   * The ECBConversionObject model module.
-   * @module model/ECBConversionObject
-   * @version 1.0.0
-   */
+	/**
+	 * Constructs a <code>ECBConversionObject</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/ECBConversionObject} obj Optional instance to populate.
+	 * @return {module:model/ECBConversionObject} The populated <code>ECBConversionObject</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("ecbReferenceRate")) {
+				obj["ecbReferenceRate"] = ApiClient.convertToType(
+					data["ecbReferenceRate"],
+					"Number"
+				);
+			}
+			if (data.hasOwnProperty("ecbReferenceRateDate")) {
+				obj["ecbReferenceRateDate"] = ApiClient.convertToType(
+					data["ecbReferenceRateDate"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("message")) {
+				obj["message"] = ApiClient.convertToType(
+					data["message"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("reasonCode")) {
+				obj["reasonCode"] = ApiClient.convertToType(
+					data["reasonCode"],
+					"String"
+				);
+			}
+		}
+		return obj;
+	};
 
-  /**
-   * Constructs a new <code>ECBConversionObject</code>.
-   * @alias module:model/ECBConversionObject
-   * @class
-   */
-  var exports = function() {
-    var _this = this;
+	/**
+	 * Euro foreign exchange reference rates issued by the European Central Bank (ECB). When neither the transaction currency nor the cardholder billing currency is equal to Euro, a calculated reference rate is derived from the two ECB rates
+	 * @member {Number} ecbReferenceRate
+	 */
+	exports.prototype["ecbReferenceRate"] = undefined;
+	/**
+	 * Date of reference rates issued by the European Central Bank (ECB).
+	 * @member {String} ecbReferenceRateDate
+	 */
+	exports.prototype["ecbReferenceRateDate"] = undefined;
+	/**
+	 * User friendly message (if applicable)
+	 * @member {String} message
+	 */
+	exports.prototype["message"] = undefined;
+	/**
+	 * User friendly reason code (if applicable)
+	 * @member {String} reasonCode
+	 */
+	exports.prototype["reasonCode"] = undefined;
 
-  };
-
-  /**
-   * Constructs a <code>ECBConversionObject</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/ECBConversionObject} obj Optional instance to populate.
-   * @return {module:model/ECBConversionObject} The populated <code>ECBConversionObject</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('ecbReferenceRate')) {
-        obj['ecbReferenceRate'] = ApiClient.convertToType(data['ecbReferenceRate'], 'Number');
-      }
-      if (data.hasOwnProperty('ecbReferenceRateDate')) {
-        obj['ecbReferenceRateDate'] = ApiClient.convertToType(data['ecbReferenceRateDate'], 'String');
-      }
-      if (data.hasOwnProperty('message')) {
-        obj['message'] = ApiClient.convertToType(data['message'], 'String');
-      }
-      if (data.hasOwnProperty('reasonCode')) {
-        obj['reasonCode'] = ApiClient.convertToType(data['reasonCode'], 'String');
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * Euro foreign exchange reference rates issued by the European Central Bank (ECB). When neither the transaction currency nor the cardholder billing currency is equal to Euro, a calculated reference rate is derived from the two ECB rates
-   * @member {Number} ecbReferenceRate
-   */
-  exports.prototype['ecbReferenceRate'] = undefined;
-  /**
-   * Date of reference rates issued by the European Central Bank (ECB).
-   * @member {String} ecbReferenceRateDate
-   */
-  exports.prototype['ecbReferenceRateDate'] = undefined;
-  /**
-   * User friendly message (if applicable)
-   * @member {String} message
-   */
-  exports.prototype['message'] = undefined;
-  /**
-   * User friendly reason code (if applicable)
-   * @member {String} reasonCode
-   */
-  exports.prototype['reasonCode'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16}],23:[function(require,module,exports){
 /**
@@ -5931,102 +6077,112 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.EcbError = factory(root.EnhancedCurrencyConversionCalculator.ApiClient);
-  }
-}(this, function(ApiClient) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(require("../ApiClient"));
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.EcbError = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient
+		);
+	}
+})(this, function (ApiClient) {
+	"use strict";
 
+	/**
+	 * The EcbError model module.
+	 * @module model/EcbError
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>EcbError</code>.
+	 * @alias module:model/EcbError
+	 * @class
+	 */
+	var exports = function () {
+		var _this = this;
+	};
 
-  /**
-   * The EcbError model module.
-   * @module model/EcbError
-   * @version 1.0.0
-   */
+	/**
+	 * Constructs a <code>EcbError</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/EcbError} obj Optional instance to populate.
+	 * @return {module:model/EcbError} The populated <code>EcbError</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("Description")) {
+				obj["Description"] = ApiClient.convertToType(
+					data["Description"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("Details")) {
+				obj["Details"] = ApiClient.convertToType(
+					data["Details"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("ReasonCode")) {
+				obj["ReasonCode"] = ApiClient.convertToType(
+					data["ReasonCode"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("Recoverable")) {
+				obj["Recoverable"] = ApiClient.convertToType(
+					data["Recoverable"],
+					"Boolean"
+				);
+			}
+			if (data.hasOwnProperty("Source")) {
+				obj["Source"] = ApiClient.convertToType(
+					data["Source"],
+					"String"
+				);
+			}
+		}
+		return obj;
+	};
 
-  /**
-   * Constructs a new <code>EcbError</code>.
-   * @alias module:model/EcbError
-   * @class
-   */
-  var exports = function() {
-    var _this = this;
+	/**
+	 * Short description of the ReasonCode field.
+	 * @member {String} Description
+	 */
+	exports.prototype["Description"] = undefined;
+	/**
+	 * Where appropriate, indicates detailed information about data received and calculated during request processing, to help the user with diagnosing errors.
+	 * @member {String} Details
+	 */
+	exports.prototype["Details"] = undefined;
+	/**
+	 * A unique constant identifying the error case encountered during transaction processing. For example, INVALID_SIGNATURE is used when the request signature does not match the expected one.
+	 * @member {String} ReasonCode
+	 */
+	exports.prototype["ReasonCode"] = undefined;
+	/**
+	 * Indicates whether this error will always be returned for this request, or retrying could change the outcome. For example, if the request contains an invalid   signature, retrying will never result in a success. However, if the error is related to some unexpected timeout with the service, retrying the call could result in a successful response.
+	 * @member {Boolean} Recoverable
+	 */
+	exports.prototype["Recoverable"] = undefined;
+	/**
+	 * The name of the application that generated this error
+	 * @member {String} Source
+	 */
+	exports.prototype["Source"] = undefined;
 
-  };
-
-  /**
-   * Constructs a <code>EcbError</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/EcbError} obj Optional instance to populate.
-   * @return {module:model/EcbError} The populated <code>EcbError</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('Description')) {
-        obj['Description'] = ApiClient.convertToType(data['Description'], 'String');
-      }
-      if (data.hasOwnProperty('Details')) {
-        obj['Details'] = ApiClient.convertToType(data['Details'], 'String');
-      }
-      if (data.hasOwnProperty('ReasonCode')) {
-        obj['ReasonCode'] = ApiClient.convertToType(data['ReasonCode'], 'String');
-      }
-      if (data.hasOwnProperty('Recoverable')) {
-        obj['Recoverable'] = ApiClient.convertToType(data['Recoverable'], 'Boolean');
-      }
-      if (data.hasOwnProperty('Source')) {
-        obj['Source'] = ApiClient.convertToType(data['Source'], 'String');
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * Short description of the ReasonCode field.
-   * @member {String} Description
-   */
-  exports.prototype['Description'] = undefined;
-  /**
-   * Where appropriate, indicates detailed information about data received and calculated during request processing, to help the user with diagnosing errors.
-   * @member {String} Details
-   */
-  exports.prototype['Details'] = undefined;
-  /**
-   * A unique constant identifying the error case encountered during transaction processing. For example, INVALID_SIGNATURE is used when the request signature does not match the expected one.
-   * @member {String} ReasonCode
-   */
-  exports.prototype['ReasonCode'] = undefined;
-  /**
-   * Indicates whether this error will always be returned for this request, or retrying could change the outcome. For example, if the request contains an invalid   signature, retrying will never result in a success. However, if the error is related to some unexpected timeout with the service, retrying the call could result in a successful response.
-   * @member {Boolean} Recoverable
-   */
-  exports.prototype['Recoverable'] = undefined;
-  /**
-   * The name of the application that generated this error
-   * @member {String} Source
-   */
-  exports.prototype['Source'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16}],24:[function(require,module,exports){
 /**
@@ -6045,86 +6201,90 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.EcbMcRateIssued = factory(root.EnhancedCurrencyConversionCalculator.ApiClient);
-  }
-}(this, function(ApiClient) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(require("../ApiClient"));
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.EcbMcRateIssued = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient
+		);
+	}
+})(this, function (ApiClient) {
+	"use strict";
 
+	/**
+	 * The EcbMcRateIssued model module.
+	 * @module model/EcbMcRateIssued
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>EcbMcRateIssued</code>.
+	 * @alias module:model/EcbMcRateIssued
+	 * @class
+	 */
+	var exports = function () {
+		var _this = this;
+	};
 
-  /**
-   * The EcbMcRateIssued model module.
-   * @module model/EcbMcRateIssued
-   * @version 1.0.0
-   */
+	/**
+	 * Constructs a <code>EcbMcRateIssued</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/EcbMcRateIssued} obj Optional instance to populate.
+	 * @return {module:model/EcbMcRateIssued} The populated <code>EcbMcRateIssued</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("message")) {
+				obj["message"] = ApiClient.convertToType(
+					data["message"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("reasonCode")) {
+				obj["reasonCode"] = ApiClient.convertToType(
+					data["reasonCode"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("status")) {
+				obj["status"] = ApiClient.convertToType(
+					data["status"],
+					"String"
+				);
+			}
+		}
+		return obj;
+	};
 
-  /**
-   * Constructs a new <code>EcbMcRateIssued</code>.
-   * @alias module:model/EcbMcRateIssued
-   * @class
-   */
-  var exports = function() {
-    var _this = this;
+	/**
+	 * User friendly message (if applicable)
+	 * @member {String} message
+	 */
+	exports.prototype["message"] = undefined;
+	/**
+	 * User friendly reason code (if applicable)
+	 * @member {String} reasonCode
+	 */
+	exports.prototype["reasonCode"] = undefined;
+	/**
+	 * Provides rate status as yes/No
+	 * @member {String} status
+	 */
+	exports.prototype["status"] = undefined;
 
-  };
-
-  /**
-   * Constructs a <code>EcbMcRateIssued</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/EcbMcRateIssued} obj Optional instance to populate.
-   * @return {module:model/EcbMcRateIssued} The populated <code>EcbMcRateIssued</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('message')) {
-        obj['message'] = ApiClient.convertToType(data['message'], 'String');
-      }
-      if (data.hasOwnProperty('reasonCode')) {
-        obj['reasonCode'] = ApiClient.convertToType(data['reasonCode'], 'String');
-      }
-      if (data.hasOwnProperty('status')) {
-        obj['status'] = ApiClient.convertToType(data['status'], 'String');
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * User friendly message (if applicable)
-   * @member {String} message
-   */
-  exports.prototype['message'] = undefined;
-  /**
-   * User friendly reason code (if applicable)
-   * @member {String} reasonCode
-   */
-  exports.prototype['reasonCode'] = undefined;
-  /**
-   * Provides rate status as yes/No
-   * @member {String} status
-   */
-  exports.prototype['status'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16}],25:[function(require,module,exports){
 /**
@@ -6143,78 +6303,79 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.EnhancedCurrency = factory(root.EnhancedCurrencyConversionCalculator.ApiClient);
-  }
-}(this, function(ApiClient) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(require("../ApiClient"));
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.EnhancedCurrency = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient
+		);
+	}
+})(this, function (ApiClient) {
+	"use strict";
 
+	/**
+	 * The EnhancedCurrency model module.
+	 * @module model/EnhancedCurrency
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>EnhancedCurrency</code>.
+	 * @alias module:model/EnhancedCurrency
+	 * @class
+	 */
+	var exports = function () {
+		var _this = this;
+	};
 
-  /**
-   * The EnhancedCurrency model module.
-   * @module model/EnhancedCurrency
-   * @version 1.0.0
-   */
+	/**
+	 * Constructs a <code>EnhancedCurrency</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/EnhancedCurrency} obj Optional instance to populate.
+	 * @return {module:model/EnhancedCurrency} The populated <code>EnhancedCurrency</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("alphaCd")) {
+				obj["alphaCd"] = ApiClient.convertToType(
+					data["alphaCd"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("currName")) {
+				obj["currName"] = ApiClient.convertToType(
+					data["currName"],
+					"String"
+				);
+			}
+		}
+		return obj;
+	};
 
-  /**
-   * Constructs a new <code>EnhancedCurrency</code>.
-   * @alias module:model/EnhancedCurrency
-   * @class
-   */
-  var exports = function() {
-    var _this = this;
+	/**
+	 * The currency code for the currency
+	 * @member {String} alphaCd
+	 */
+	exports.prototype["alphaCd"] = undefined;
+	/**
+	 * The full name of the currency
+	 * @member {String} currName
+	 */
+	exports.prototype["currName"] = undefined;
 
-  };
-
-  /**
-   * Constructs a <code>EnhancedCurrency</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/EnhancedCurrency} obj Optional instance to populate.
-   * @return {module:model/EnhancedCurrency} The populated <code>EnhancedCurrency</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('alphaCd')) {
-        obj['alphaCd'] = ApiClient.convertToType(data['alphaCd'], 'String');
-      }
-      if (data.hasOwnProperty('currName')) {
-        obj['currName'] = ApiClient.convertToType(data['currName'], 'String');
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * The currency code for the currency
-   * @member {String} alphaCd
-   */
-  exports.prototype['alphaCd'] = undefined;
-  /**
-   * The full name of the currency
-   * @member {String} currName
-   */
-  exports.prototype['currName'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16}],26:[function(require,module,exports){
 /**
@@ -6233,148 +6394,194 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient', 'model/ECBConversionObject', 'model/MastercardConversionObject'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('./ECBConversionObject'), require('./MastercardConversionObject'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.EnhancedCurrencyConversionData = factory(root.EnhancedCurrencyConversionCalculator.ApiClient, root.EnhancedCurrencyConversionCalculator.ECBConversionObject, root.EnhancedCurrencyConversionCalculator.MastercardConversionObject);
-  }
-}(this, function(ApiClient, ECBConversionObject, MastercardConversionObject) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define([
+			"ApiClient",
+			"model/ECBConversionObject",
+			"model/MastercardConversionObject",
+		], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(
+			require("../ApiClient"),
+			require("./ECBConversionObject"),
+			require("./MastercardConversionObject")
+		);
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.EnhancedCurrencyConversionData = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient,
+			root.EnhancedCurrencyConversionCalculator.ECBConversionObject,
+			root.EnhancedCurrencyConversionCalculator.MastercardConversionObject
+		);
+	}
+})(this, function (ApiClient, ECBConversionObject, MastercardConversionObject) {
+	"use strict";
 
+	/**
+	 * The EnhancedCurrencyConversionData model module.
+	 * @module model/EnhancedCurrencyConversionData
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>EnhancedCurrencyConversionData</code>.
+	 * @alias module:model/EnhancedCurrencyConversionData
+	 * @class
+	 */
+	var exports = function () {
+		var _this = this;
+	};
 
-  /**
-   * The EnhancedCurrencyConversionData model module.
-   * @module model/EnhancedCurrencyConversionData
-   * @version 1.0.0
-   */
+	/**
+	 * Constructs a <code>EnhancedCurrencyConversionData</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/EnhancedCurrencyConversionData} obj Optional instance to populate.
+	 * @return {module:model/EnhancedCurrencyConversionData} The populated <code>EnhancedCurrencyConversionData</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("transCurr")) {
+				obj["transCurr"] = ApiClient.convertToType(
+					data["transCurr"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("crdhldBillCurr")) {
+				obj["crdhldBillCurr"] = ApiClient.convertToType(
+					data["crdhldBillCurr"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("rateDate")) {
+				obj["rateDate"] = ApiClient.convertToType(
+					data["rateDate"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("transAmt")) {
+				obj["transAmt"] = ApiClient.convertToType(
+					data["transAmt"],
+					"Number"
+				);
+			}
+			if (data.hasOwnProperty("bankFeePct")) {
+				obj["bankFeePct"] = ApiClient.convertToType(
+					data["bankFeePct"],
+					"Number"
+				);
+			}
+			if (data.hasOwnProperty("bankFeeFixed")) {
+				obj["bankFeeFixed"] = ApiClient.convertToType(
+					data["bankFeeFixed"],
+					"Number"
+				);
+			}
+			if (data.hasOwnProperty("mastercard")) {
+				obj[
+					"mastercard"
+				] = MastercardConversionObject.constructFromObject(
+					data["mastercard"]
+				);
+			}
+			if (data.hasOwnProperty("ecb")) {
+				obj["ecb"] = ECBConversionObject.constructFromObject(
+					data["ecb"]
+				);
+			}
+			if (data.hasOwnProperty("effectiveConversionRate")) {
+				obj["effectiveConversionRate"] = ApiClient.convertToType(
+					data["effectiveConversionRate"],
+					"Number"
+				);
+			}
+			if (
+				data.hasOwnProperty("pctDifferenceMastercardExclAllFeesAndEcb")
+			) {
+				obj[
+					"pctDifferenceMastercardExclAllFeesAndEcb"
+				] = ApiClient.convertToType(
+					data["pctDifferenceMastercardExclAllFeesAndEcb"],
+					"Number"
+				);
+			}
+			if (
+				data.hasOwnProperty("pctDifferenceMastercardInclAllFeesAndEcb")
+			) {
+				obj[
+					"pctDifferenceMastercardInclAllFeesAndEcb"
+				] = ApiClient.convertToType(
+					data["pctDifferenceMastercardInclAllFeesAndEcb"],
+					"Number"
+				);
+			}
+		}
+		return obj;
+	};
 
-  /**
-   * Constructs a new <code>EnhancedCurrencyConversionData</code>.
-   * @alias module:model/EnhancedCurrencyConversionData
-   * @class
-   */
-  var exports = function() {
-    var _this = this;
+	/**
+	 * Currency of the transaction as provided in the API request
+	 * @member {String} transCurr
+	 */
+	exports.prototype["transCurr"] = undefined;
+	/**
+	 * Cardholder billing currency as provided in the API request
+	 * @member {String} crdhldBillCurr
+	 */
+	exports.prototype["crdhldBillCurr"] = undefined;
+	/**
+	 * The date of the requested rates
+	 * @member {String} rateDate
+	 */
+	exports.prototype["rateDate"] = undefined;
+	/**
+	 * Amount in transaction currency as provided in the API request
+	 * @member {Number} transAmt
+	 */
+	exports.prototype["transAmt"] = undefined;
+	/**
+	 * Percentage bank fee as provided in the API request
+	 * @member {Number} bankFeePct
+	 */
+	exports.prototype["bankFeePct"] = undefined;
+	/**
+	 * Fixed bank fee as provided in the API request
+	 * @member {Number} bankFeeFixed
+	 */
+	exports.prototype["bankFeeFixed"] = undefined;
+	/**
+	 * @member {module:model/MastercardConversionObject} mastercard
+	 */
+	exports.prototype["mastercard"] = undefined;
+	/**
+	 * @member {module:model/ECBConversionObject} ecb
+	 */
+	exports.prototype["ecb"] = undefined;
+	/**
+	 * Calculated effective exchange rate for the requested currency pair including all issuer-to-cardholder fees. This is calculated by dividing cardholder billing amount including all fees divided by the transaction amount (crdhldBillAmtInclAllFees / transAmount)
+	 * @member {Number} effectiveConversionRate
+	 */
+	exports.prototype["effectiveConversionRate"] = undefined;
+	/**
+	 * Calculated percentage difference between Mastercard Conversion Rate excluding all issuer-to-cardholder fees for the selected currency pair and the ECB Reference Rate
+	 * @member {Number} pctDifferenceMastercardExclAllFeesAndEcb
+	 */
+	exports.prototype["pctDifferenceMastercardExclAllFeesAndEcb"] = undefined;
+	/**
+	 * Calculated percentage difference between Mastercard Conversion Rate Including all issuer-to-cardholder fees (fixed and percentage) for the selected currency pair and the ECB Reference Rate ([effectiveConversionRate/ecbReferenceRateDate]-1*100)
+	 * @member {Number} pctDifferenceMastercardInclAllFeesAndEcb
+	 */
+	exports.prototype["pctDifferenceMastercardInclAllFeesAndEcb"] = undefined;
 
-  };
-
-  /**
-   * Constructs a <code>EnhancedCurrencyConversionData</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/EnhancedCurrencyConversionData} obj Optional instance to populate.
-   * @return {module:model/EnhancedCurrencyConversionData} The populated <code>EnhancedCurrencyConversionData</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('transCurr')) {
-        obj['transCurr'] = ApiClient.convertToType(data['transCurr'], 'String');
-      }
-      if (data.hasOwnProperty('crdhldBillCurr')) {
-        obj['crdhldBillCurr'] = ApiClient.convertToType(data['crdhldBillCurr'], 'String');
-      }
-      if (data.hasOwnProperty('rateDate')) {
-        obj['rateDate'] = ApiClient.convertToType(data['rateDate'], 'String');
-      }
-      if (data.hasOwnProperty('transAmt')) {
-        obj['transAmt'] = ApiClient.convertToType(data['transAmt'], 'Number');
-      }
-      if (data.hasOwnProperty('bankFeePct')) {
-        obj['bankFeePct'] = ApiClient.convertToType(data['bankFeePct'], 'Number');
-      }
-      if (data.hasOwnProperty('bankFeeFixed')) {
-        obj['bankFeeFixed'] = ApiClient.convertToType(data['bankFeeFixed'], 'Number');
-      }
-      if (data.hasOwnProperty('mastercard')) {
-        obj['mastercard'] = MastercardConversionObject.constructFromObject(data['mastercard']);
-      }
-      if (data.hasOwnProperty('ecb')) {
-        obj['ecb'] = ECBConversionObject.constructFromObject(data['ecb']);
-      }
-      if (data.hasOwnProperty('effectiveConversionRate')) {
-        obj['effectiveConversionRate'] = ApiClient.convertToType(data['effectiveConversionRate'], 'Number');
-      }
-      if (data.hasOwnProperty('pctDifferenceMastercardExclAllFeesAndEcb')) {
-        obj['pctDifferenceMastercardExclAllFeesAndEcb'] = ApiClient.convertToType(data['pctDifferenceMastercardExclAllFeesAndEcb'], 'Number');
-      }
-      if (data.hasOwnProperty('pctDifferenceMastercardInclAllFeesAndEcb')) {
-        obj['pctDifferenceMastercardInclAllFeesAndEcb'] = ApiClient.convertToType(data['pctDifferenceMastercardInclAllFeesAndEcb'], 'Number');
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * Currency of the transaction as provided in the API request
-   * @member {String} transCurr
-   */
-  exports.prototype['transCurr'] = undefined;
-  /**
-   * Cardholder billing currency as provided in the API request
-   * @member {String} crdhldBillCurr
-   */
-  exports.prototype['crdhldBillCurr'] = undefined;
-  /**
-   * The date of the requested rates
-   * @member {String} rateDate
-   */
-  exports.prototype['rateDate'] = undefined;
-  /**
-   * Amount in transaction currency as provided in the API request
-   * @member {Number} transAmt
-   */
-  exports.prototype['transAmt'] = undefined;
-  /**
-   * Percentage bank fee as provided in the API request
-   * @member {Number} bankFeePct
-   */
-  exports.prototype['bankFeePct'] = undefined;
-  /**
-   * Fixed bank fee as provided in the API request
-   * @member {Number} bankFeeFixed
-   */
-  exports.prototype['bankFeeFixed'] = undefined;
-  /**
-   * @member {module:model/MastercardConversionObject} mastercard
-   */
-  exports.prototype['mastercard'] = undefined;
-  /**
-   * @member {module:model/ECBConversionObject} ecb
-   */
-  exports.prototype['ecb'] = undefined;
-  /**
-   * Calculated effective exchange rate for the requested currency pair including all issuer-to-cardholder fees. This is calculated by dividing cardholder billing amount including all fees divided by the transaction amount (crdhldBillAmtInclAllFees / transAmount)
-   * @member {Number} effectiveConversionRate
-   */
-  exports.prototype['effectiveConversionRate'] = undefined;
-  /**
-   * Calculated percentage difference between Mastercard Conversion Rate excluding all issuer-to-cardholder fees for the selected currency pair and the ECB Reference Rate
-   * @member {Number} pctDifferenceMastercardExclAllFeesAndEcb
-   */
-  exports.prototype['pctDifferenceMastercardExclAllFeesAndEcb'] = undefined;
-  /**
-   * Calculated percentage difference between Mastercard Conversion Rate Including all issuer-to-cardholder fees (fixed and percentage) for the selected currency pair and the ECB Reference Rate ([effectiveConversionRate/ecbReferenceRateDate]-1*100)
-   * @member {Number} pctDifferenceMastercardInclAllFeesAndEcb
-   */
-  exports.prototype['pctDifferenceMastercardInclAllFeesAndEcb'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16,"./ECBConversionObject":22,"./MastercardConversionObject":36}],27:[function(require,module,exports){
 /**
@@ -6393,93 +6600,103 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient', 'model/EnhancedCurrencyConversionData'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('./EnhancedCurrencyConversionData'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.EnhancedCurrencyConversionResponse = factory(root.EnhancedCurrencyConversionCalculator.ApiClient, root.EnhancedCurrencyConversionCalculator.EnhancedCurrencyConversionData);
-  }
-}(this, function(ApiClient, EnhancedCurrencyConversionData) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient", "model/EnhancedCurrencyConversionData"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(
+			require("../ApiClient"),
+			require("./EnhancedCurrencyConversionData")
+		);
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.EnhancedCurrencyConversionResponse = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient,
+			root.EnhancedCurrencyConversionCalculator
+				.EnhancedCurrencyConversionData
+		);
+	}
+})(this, function (ApiClient, EnhancedCurrencyConversionData) {
+	"use strict";
 
+	/**
+	 * The EnhancedCurrencyConversionResponse model module.
+	 * @module model/EnhancedCurrencyConversionResponse
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>EnhancedCurrencyConversionResponse</code>.
+	 * @alias module:model/EnhancedCurrencyConversionResponse
+	 * @class
+	 */
+	var exports = function () {
+		var _this = this;
+	};
 
-  /**
-   * The EnhancedCurrencyConversionResponse model module.
-   * @module model/EnhancedCurrencyConversionResponse
-   * @version 1.0.0
-   */
+	/**
+	 * Constructs a <code>EnhancedCurrencyConversionResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/EnhancedCurrencyConversionResponse} obj Optional instance to populate.
+	 * @return {module:model/EnhancedCurrencyConversionResponse} The populated <code>EnhancedCurrencyConversionResponse</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("data")) {
+				obj[
+					"data"
+				] = EnhancedCurrencyConversionData.constructFromObject(
+					data["data"]
+				);
+			}
+			if (data.hasOwnProperty("description")) {
+				obj["description"] = ApiClient.convertToType(
+					data["description"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("name")) {
+				obj["name"] = ApiClient.convertToType(data["name"], "String");
+			}
+			if (data.hasOwnProperty("requestDate")) {
+				obj["requestDate"] = ApiClient.convertToType(
+					data["requestDate"],
+					"String"
+				);
+			}
+		}
+		return obj;
+	};
 
-  /**
-   * Constructs a new <code>EnhancedCurrencyConversionResponse</code>.
-   * @alias module:model/EnhancedCurrencyConversionResponse
-   * @class
-   */
-  var exports = function() {
-    var _this = this;
+	/**
+	 * @member {module:model/EnhancedCurrencyConversionData} data
+	 */
+	exports.prototype["data"] = undefined;
+	/**
+	 * The description of the API being called
+	 * @member {String} description
+	 */
+	exports.prototype["description"] = undefined;
+	/**
+	 * The name of the service being requested
+	 * @member {String} name
+	 */
+	exports.prototype["name"] = undefined;
+	/**
+	 * The date and time the API is being called in GMT
+	 * @member {String} requestDate
+	 */
+	exports.prototype["requestDate"] = undefined;
 
-  };
-
-  /**
-   * Constructs a <code>EnhancedCurrencyConversionResponse</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/EnhancedCurrencyConversionResponse} obj Optional instance to populate.
-   * @return {module:model/EnhancedCurrencyConversionResponse} The populated <code>EnhancedCurrencyConversionResponse</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('data')) {
-        obj['data'] = EnhancedCurrencyConversionData.constructFromObject(data['data']);
-      }
-      if (data.hasOwnProperty('description')) {
-        obj['description'] = ApiClient.convertToType(data['description'], 'String');
-      }
-      if (data.hasOwnProperty('name')) {
-        obj['name'] = ApiClient.convertToType(data['name'], 'String');
-      }
-      if (data.hasOwnProperty('requestDate')) {
-        obj['requestDate'] = ApiClient.convertToType(data['requestDate'], 'String');
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * @member {module:model/EnhancedCurrencyConversionData} data
-   */
-  exports.prototype['data'] = undefined;
-  /**
-   * The description of the API being called
-   * @member {String} description
-   */
-  exports.prototype['description'] = undefined;
-  /**
-   * The name of the service being requested
-   * @member {String} name
-   */
-  exports.prototype['name'] = undefined;
-  /**
-   * The date and time the API is being called in GMT
-   * @member {String} requestDate
-   */
-  exports.prototype['requestDate'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16,"./EnhancedCurrencyConversionData":26}],28:[function(require,module,exports){
 /**
@@ -6498,78 +6715,83 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient', 'model/EnhancedCurrency'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('./EnhancedCurrency'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.EnhancedEcbCurrencies = factory(root.EnhancedCurrencyConversionCalculator.ApiClient, root.EnhancedCurrencyConversionCalculator.EnhancedCurrency);
-  }
-}(this, function(ApiClient, EnhancedCurrency) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient", "model/EnhancedCurrency"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(
+			require("../ApiClient"),
+			require("./EnhancedCurrency")
+		);
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.EnhancedEcbCurrencies = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient,
+			root.EnhancedCurrencyConversionCalculator.EnhancedCurrency
+		);
+	}
+})(this, function (ApiClient, EnhancedCurrency) {
+	"use strict";
 
+	/**
+	 * The EnhancedEcbCurrencies model module.
+	 * @module model/EnhancedEcbCurrencies
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>EnhancedEcbCurrencies</code>.
+	 * @alias module:model/EnhancedEcbCurrencies
+	 * @class
+	 */
+	var exports = function () {
+		var _this = this;
+	};
 
-  /**
-   * The EnhancedEcbCurrencies model module.
-   * @module model/EnhancedEcbCurrencies
-   * @version 1.0.0
-   */
+	/**
+	 * Constructs a <code>EnhancedEcbCurrencies</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/EnhancedEcbCurrencies} obj Optional instance to populate.
+	 * @return {module:model/EnhancedEcbCurrencies} The populated <code>EnhancedEcbCurrencies</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("currencies")) {
+				obj["currencies"] = ApiClient.convertToType(
+					data["currencies"],
+					[EnhancedCurrency]
+				);
+			}
+			if (data.hasOwnProperty("currencyCount")) {
+				obj["currencyCount"] = ApiClient.convertToType(
+					data["currencyCount"],
+					"Number"
+				);
+			}
+		}
+		return obj;
+	};
 
-  /**
-   * Constructs a new <code>EnhancedEcbCurrencies</code>.
-   * @alias module:model/EnhancedEcbCurrencies
-   * @class
-   */
-  var exports = function() {
-    var _this = this;
+	/**
+	 * List of ECB Currencies
+	 * @member {Array.<module:model/EnhancedCurrency>} currencies
+	 */
+	exports.prototype["currencies"] = undefined;
+	/**
+	 * Number of ECB Currencies
+	 * @member {Number} currencyCount
+	 */
+	exports.prototype["currencyCount"] = undefined;
 
-  };
-
-  /**
-   * Constructs a <code>EnhancedEcbCurrencies</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/EnhancedEcbCurrencies} obj Optional instance to populate.
-   * @return {module:model/EnhancedEcbCurrencies} The populated <code>EnhancedEcbCurrencies</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('currencies')) {
-        obj['currencies'] = ApiClient.convertToType(data['currencies'], [EnhancedCurrency]);
-      }
-      if (data.hasOwnProperty('currencyCount')) {
-        obj['currencyCount'] = ApiClient.convertToType(data['currencyCount'], 'Number');
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * List of ECB Currencies
-   * @member {Array.<module:model/EnhancedCurrency>} currencies
-   */
-  exports.prototype['currencies'] = undefined;
-  /**
-   * Number of ECB Currencies
-   * @member {Number} currencyCount
-   */
-  exports.prototype['currencyCount'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16,"./EnhancedCurrency":25}],29:[function(require,module,exports){
 /**
@@ -6588,93 +6810,100 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient', 'model/EnhancedEcbCurrencies'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('./EnhancedEcbCurrencies'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.EnhancedEcbCurrencyResponse = factory(root.EnhancedCurrencyConversionCalculator.ApiClient, root.EnhancedCurrencyConversionCalculator.EnhancedEcbCurrencies);
-  }
-}(this, function(ApiClient, EnhancedEcbCurrencies) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient", "model/EnhancedEcbCurrencies"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(
+			require("../ApiClient"),
+			require("./EnhancedEcbCurrencies")
+		);
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.EnhancedEcbCurrencyResponse = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient,
+			root.EnhancedCurrencyConversionCalculator.EnhancedEcbCurrencies
+		);
+	}
+})(this, function (ApiClient, EnhancedEcbCurrencies) {
+	"use strict";
 
+	/**
+	 * The EnhancedEcbCurrencyResponse model module.
+	 * @module model/EnhancedEcbCurrencyResponse
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>EnhancedEcbCurrencyResponse</code>.
+	 * @alias module:model/EnhancedEcbCurrencyResponse
+	 * @class
+	 */
+	var exports = function () {
+		var _this = this;
+	};
 
-  /**
-   * The EnhancedEcbCurrencyResponse model module.
-   * @module model/EnhancedEcbCurrencyResponse
-   * @version 1.0.0
-   */
+	/**
+	 * Constructs a <code>EnhancedEcbCurrencyResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/EnhancedEcbCurrencyResponse} obj Optional instance to populate.
+	 * @return {module:model/EnhancedEcbCurrencyResponse} The populated <code>EnhancedEcbCurrencyResponse</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("data")) {
+				obj["data"] = EnhancedEcbCurrencies.constructFromObject(
+					data["data"]
+				);
+			}
+			if (data.hasOwnProperty("description")) {
+				obj["description"] = ApiClient.convertToType(
+					data["description"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("name")) {
+				obj["name"] = ApiClient.convertToType(data["name"], "String");
+			}
+			if (data.hasOwnProperty("requestDate")) {
+				obj["requestDate"] = ApiClient.convertToType(
+					data["requestDate"],
+					"String"
+				);
+			}
+		}
+		return obj;
+	};
 
-  /**
-   * Constructs a new <code>EnhancedEcbCurrencyResponse</code>.
-   * @alias module:model/EnhancedEcbCurrencyResponse
-   * @class
-   */
-  var exports = function() {
-    var _this = this;
+	/**
+	 * @member {module:model/EnhancedEcbCurrencies} data
+	 */
+	exports.prototype["data"] = undefined;
+	/**
+	 * The description of the API being called
+	 * @member {String} description
+	 */
+	exports.prototype["description"] = undefined;
+	/**
+	 * The name of the service being requested
+	 * @member {String} name
+	 */
+	exports.prototype["name"] = undefined;
+	/**
+	 * The date and time the API is being called in GMT
+	 * @member {String} requestDate
+	 */
+	exports.prototype["requestDate"] = undefined;
 
-  };
-
-  /**
-   * Constructs a <code>EnhancedEcbCurrencyResponse</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/EnhancedEcbCurrencyResponse} obj Optional instance to populate.
-   * @return {module:model/EnhancedEcbCurrencyResponse} The populated <code>EnhancedEcbCurrencyResponse</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('data')) {
-        obj['data'] = EnhancedEcbCurrencies.constructFromObject(data['data']);
-      }
-      if (data.hasOwnProperty('description')) {
-        obj['description'] = ApiClient.convertToType(data['description'], 'String');
-      }
-      if (data.hasOwnProperty('name')) {
-        obj['name'] = ApiClient.convertToType(data['name'], 'String');
-      }
-      if (data.hasOwnProperty('requestDate')) {
-        obj['requestDate'] = ApiClient.convertToType(data['requestDate'], 'String');
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * @member {module:model/EnhancedEcbCurrencies} data
-   */
-  exports.prototype['data'] = undefined;
-  /**
-   * The description of the API being called
-   * @member {String} description
-   */
-  exports.prototype['description'] = undefined;
-  /**
-   * The name of the service being requested
-   * @member {String} name
-   */
-  exports.prototype['name'] = undefined;
-  /**
-   * The date and time the API is being called in GMT
-   * @member {String} requestDate
-   */
-  exports.prototype['requestDate'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16,"./EnhancedEcbCurrencies":28}],30:[function(require,module,exports){
 /**
@@ -6693,78 +6922,83 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient', 'model/EnhancedCurrency'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('./EnhancedCurrency'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.EnhancedMastercardCurrencies = factory(root.EnhancedCurrencyConversionCalculator.ApiClient, root.EnhancedCurrencyConversionCalculator.EnhancedCurrency);
-  }
-}(this, function(ApiClient, EnhancedCurrency) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient", "model/EnhancedCurrency"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(
+			require("../ApiClient"),
+			require("./EnhancedCurrency")
+		);
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.EnhancedMastercardCurrencies = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient,
+			root.EnhancedCurrencyConversionCalculator.EnhancedCurrency
+		);
+	}
+})(this, function (ApiClient, EnhancedCurrency) {
+	"use strict";
 
+	/**
+	 * The EnhancedMastercardCurrencies model module.
+	 * @module model/EnhancedMastercardCurrencies
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>EnhancedMastercardCurrencies</code>.
+	 * @alias module:model/EnhancedMastercardCurrencies
+	 * @class
+	 */
+	var exports = function () {
+		var _this = this;
+	};
 
-  /**
-   * The EnhancedMastercardCurrencies model module.
-   * @module model/EnhancedMastercardCurrencies
-   * @version 1.0.0
-   */
+	/**
+	 * Constructs a <code>EnhancedMastercardCurrencies</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/EnhancedMastercardCurrencies} obj Optional instance to populate.
+	 * @return {module:model/EnhancedMastercardCurrencies} The populated <code>EnhancedMastercardCurrencies</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("currencies")) {
+				obj["currencies"] = ApiClient.convertToType(
+					data["currencies"],
+					[EnhancedCurrency]
+				);
+			}
+			if (data.hasOwnProperty("currencyCount")) {
+				obj["currencyCount"] = ApiClient.convertToType(
+					data["currencyCount"],
+					"Number"
+				);
+			}
+		}
+		return obj;
+	};
 
-  /**
-   * Constructs a new <code>EnhancedMastercardCurrencies</code>.
-   * @alias module:model/EnhancedMastercardCurrencies
-   * @class
-   */
-  var exports = function() {
-    var _this = this;
+	/**
+	 * List of Mastercard Currencies
+	 * @member {Array.<module:model/EnhancedCurrency>} currencies
+	 */
+	exports.prototype["currencies"] = undefined;
+	/**
+	 * Number of Mastercard Currencies
+	 * @member {Number} currencyCount
+	 */
+	exports.prototype["currencyCount"] = undefined;
 
-  };
-
-  /**
-   * Constructs a <code>EnhancedMastercardCurrencies</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/EnhancedMastercardCurrencies} obj Optional instance to populate.
-   * @return {module:model/EnhancedMastercardCurrencies} The populated <code>EnhancedMastercardCurrencies</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('currencies')) {
-        obj['currencies'] = ApiClient.convertToType(data['currencies'], [EnhancedCurrency]);
-      }
-      if (data.hasOwnProperty('currencyCount')) {
-        obj['currencyCount'] = ApiClient.convertToType(data['currencyCount'], 'Number');
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * List of Mastercard Currencies
-   * @member {Array.<module:model/EnhancedCurrency>} currencies
-   */
-  exports.prototype['currencies'] = undefined;
-  /**
-   * Number of Mastercard Currencies
-   * @member {Number} currencyCount
-   */
-  exports.prototype['currencyCount'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16,"./EnhancedCurrency":25}],31:[function(require,module,exports){
 /**
@@ -6783,93 +7017,101 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient', 'model/EnhancedMastercardCurrencies'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('./EnhancedMastercardCurrencies'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.EnhancedMastercardCurrencyResponse = factory(root.EnhancedCurrencyConversionCalculator.ApiClient, root.EnhancedCurrencyConversionCalculator.EnhancedMastercardCurrencies);
-  }
-}(this, function(ApiClient, EnhancedMastercardCurrencies) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient", "model/EnhancedMastercardCurrencies"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(
+			require("../ApiClient"),
+			require("./EnhancedMastercardCurrencies")
+		);
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.EnhancedMastercardCurrencyResponse = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient,
+			root.EnhancedCurrencyConversionCalculator
+				.EnhancedMastercardCurrencies
+		);
+	}
+})(this, function (ApiClient, EnhancedMastercardCurrencies) {
+	"use strict";
 
+	/**
+	 * The EnhancedMastercardCurrencyResponse model module.
+	 * @module model/EnhancedMastercardCurrencyResponse
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>EnhancedMastercardCurrencyResponse</code>.
+	 * @alias module:model/EnhancedMastercardCurrencyResponse
+	 * @class
+	 */
+	var exports = function () {
+		var _this = this;
+	};
 
-  /**
-   * The EnhancedMastercardCurrencyResponse model module.
-   * @module model/EnhancedMastercardCurrencyResponse
-   * @version 1.0.0
-   */
+	/**
+	 * Constructs a <code>EnhancedMastercardCurrencyResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/EnhancedMastercardCurrencyResponse} obj Optional instance to populate.
+	 * @return {module:model/EnhancedMastercardCurrencyResponse} The populated <code>EnhancedMastercardCurrencyResponse</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("data")) {
+				obj["data"] = EnhancedMastercardCurrencies.constructFromObject(
+					data["data"]
+				);
+			}
+			if (data.hasOwnProperty("description")) {
+				obj["description"] = ApiClient.convertToType(
+					data["description"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("name")) {
+				obj["name"] = ApiClient.convertToType(data["name"], "String");
+			}
+			if (data.hasOwnProperty("requestDate")) {
+				obj["requestDate"] = ApiClient.convertToType(
+					data["requestDate"],
+					"String"
+				);
+			}
+		}
+		return obj;
+	};
 
-  /**
-   * Constructs a new <code>EnhancedMastercardCurrencyResponse</code>.
-   * @alias module:model/EnhancedMastercardCurrencyResponse
-   * @class
-   */
-  var exports = function() {
-    var _this = this;
+	/**
+	 * @member {module:model/EnhancedMastercardCurrencies} data
+	 */
+	exports.prototype["data"] = undefined;
+	/**
+	 * The description of the API being called
+	 * @member {String} description
+	 */
+	exports.prototype["description"] = undefined;
+	/**
+	 * The name of the service being requested
+	 * @member {String} name
+	 */
+	exports.prototype["name"] = undefined;
+	/**
+	 * The date and time the API is being called in GMT
+	 * @member {String} requestDate
+	 */
+	exports.prototype["requestDate"] = undefined;
 
-  };
-
-  /**
-   * Constructs a <code>EnhancedMastercardCurrencyResponse</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/EnhancedMastercardCurrencyResponse} obj Optional instance to populate.
-   * @return {module:model/EnhancedMastercardCurrencyResponse} The populated <code>EnhancedMastercardCurrencyResponse</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('data')) {
-        obj['data'] = EnhancedMastercardCurrencies.constructFromObject(data['data']);
-      }
-      if (data.hasOwnProperty('description')) {
-        obj['description'] = ApiClient.convertToType(data['description'], 'String');
-      }
-      if (data.hasOwnProperty('name')) {
-        obj['name'] = ApiClient.convertToType(data['name'], 'String');
-      }
-      if (data.hasOwnProperty('requestDate')) {
-        obj['requestDate'] = ApiClient.convertToType(data['requestDate'], 'String');
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * @member {module:model/EnhancedMastercardCurrencies} data
-   */
-  exports.prototype['data'] = undefined;
-  /**
-   * The description of the API being called
-   * @member {String} description
-   */
-  exports.prototype['description'] = undefined;
-  /**
-   * The name of the service being requested
-   * @member {String} name
-   */
-  exports.prototype['name'] = undefined;
-  /**
-   * The date and time the API is being called in GMT
-   * @member {String} requestDate
-   */
-  exports.prototype['requestDate'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16,"./EnhancedMastercardCurrencies":30}],32:[function(require,module,exports){
 /**
@@ -6888,84 +7130,92 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient', 'model/EcbMcRateIssued'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('./EcbMcRateIssued'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.EnhancedSettlementRateIssued = factory(root.EnhancedCurrencyConversionCalculator.ApiClient, root.EnhancedCurrencyConversionCalculator.EcbMcRateIssued);
-  }
-}(this, function(ApiClient, EcbMcRateIssued) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient", "model/EcbMcRateIssued"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(
+			require("../ApiClient"),
+			require("./EcbMcRateIssued")
+		);
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.EnhancedSettlementRateIssued = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient,
+			root.EnhancedCurrencyConversionCalculator.EcbMcRateIssued
+		);
+	}
+})(this, function (ApiClient, EcbMcRateIssued) {
+	"use strict";
 
+	/**
+	 * The EnhancedSettlementRateIssued model module.
+	 * @module model/EnhancedSettlementRateIssued
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>EnhancedSettlementRateIssued</code>.
+	 * @alias module:model/EnhancedSettlementRateIssued
+	 * @class
+	 */
+	var exports = function () {
+		var _this = this;
+	};
 
-  /**
-   * The EnhancedSettlementRateIssued model module.
-   * @module model/EnhancedSettlementRateIssued
-   * @version 1.0.0
-   */
+	/**
+	 * Constructs a <code>EnhancedSettlementRateIssued</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/EnhancedSettlementRateIssued} obj Optional instance to populate.
+	 * @return {module:model/EnhancedSettlementRateIssued} The populated <code>EnhancedSettlementRateIssued</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("ecbRateIssued")) {
+				obj["ecbRateIssued"] = EcbMcRateIssued.constructFromObject(
+					data["ecbRateIssued"]
+				);
+			}
+			if (data.hasOwnProperty("mastercardRateIssued")) {
+				obj[
+					"mastercardRateIssued"
+				] = EcbMcRateIssued.constructFromObject(
+					data["mastercardRateIssued"]
+				);
+			}
+			if (data.hasOwnProperty("rateDate")) {
+				obj["rateDate"] = ApiClient.convertToType(
+					data["rateDate"],
+					"String"
+				);
+			}
+		}
+		return obj;
+	};
 
-  /**
-   * Constructs a new <code>EnhancedSettlementRateIssued</code>.
-   * @alias module:model/EnhancedSettlementRateIssued
-   * @class
-   */
-  var exports = function() {
-    var _this = this;
+	/**
+	 * @member {module:model/EcbMcRateIssued} ecbRateIssued
+	 */
+	exports.prototype["ecbRateIssued"] = undefined;
+	/**
+	 * @member {module:model/EcbMcRateIssued} mastercardRateIssued
+	 */
+	exports.prototype["mastercardRateIssued"] = undefined;
+	/**
+	 * The date of the requested rates
+	 * @member {String} rateDate
+	 */
+	exports.prototype["rateDate"] = undefined;
 
-  };
-
-  /**
-   * Constructs a <code>EnhancedSettlementRateIssued</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/EnhancedSettlementRateIssued} obj Optional instance to populate.
-   * @return {module:model/EnhancedSettlementRateIssued} The populated <code>EnhancedSettlementRateIssued</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('ecbRateIssued')) {
-        obj['ecbRateIssued'] = EcbMcRateIssued.constructFromObject(data['ecbRateIssued']);
-      }
-      if (data.hasOwnProperty('mastercardRateIssued')) {
-        obj['mastercardRateIssued'] = EcbMcRateIssued.constructFromObject(data['mastercardRateIssued']);
-      }
-      if (data.hasOwnProperty('rateDate')) {
-        obj['rateDate'] = ApiClient.convertToType(data['rateDate'], 'String');
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * @member {module:model/EcbMcRateIssued} ecbRateIssued
-   */
-  exports.prototype['ecbRateIssued'] = undefined;
-  /**
-   * @member {module:model/EcbMcRateIssued} mastercardRateIssued
-   */
-  exports.prototype['mastercardRateIssued'] = undefined;
-  /**
-   * The date of the requested rates
-   * @member {String} rateDate
-   */
-  exports.prototype['rateDate'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16,"./EcbMcRateIssued":24}],33:[function(require,module,exports){
 /**
@@ -6984,93 +7234,101 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient', 'model/EnhancedSettlementRateIssued'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('./EnhancedSettlementRateIssued'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.EnhancedSettlementRateIssuedResponse = factory(root.EnhancedCurrencyConversionCalculator.ApiClient, root.EnhancedCurrencyConversionCalculator.EnhancedSettlementRateIssued);
-  }
-}(this, function(ApiClient, EnhancedSettlementRateIssued) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient", "model/EnhancedSettlementRateIssued"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(
+			require("../ApiClient"),
+			require("./EnhancedSettlementRateIssued")
+		);
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.EnhancedSettlementRateIssuedResponse = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient,
+			root.EnhancedCurrencyConversionCalculator
+				.EnhancedSettlementRateIssued
+		);
+	}
+})(this, function (ApiClient, EnhancedSettlementRateIssued) {
+	"use strict";
 
+	/**
+	 * The EnhancedSettlementRateIssuedResponse model module.
+	 * @module model/EnhancedSettlementRateIssuedResponse
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>EnhancedSettlementRateIssuedResponse</code>.
+	 * @alias module:model/EnhancedSettlementRateIssuedResponse
+	 * @class
+	 */
+	var exports = function () {
+		var _this = this;
+	};
 
-  /**
-   * The EnhancedSettlementRateIssuedResponse model module.
-   * @module model/EnhancedSettlementRateIssuedResponse
-   * @version 1.0.0
-   */
+	/**
+	 * Constructs a <code>EnhancedSettlementRateIssuedResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/EnhancedSettlementRateIssuedResponse} obj Optional instance to populate.
+	 * @return {module:model/EnhancedSettlementRateIssuedResponse} The populated <code>EnhancedSettlementRateIssuedResponse</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("data")) {
+				obj["data"] = EnhancedSettlementRateIssued.constructFromObject(
+					data["data"]
+				);
+			}
+			if (data.hasOwnProperty("description")) {
+				obj["description"] = ApiClient.convertToType(
+					data["description"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("name")) {
+				obj["name"] = ApiClient.convertToType(data["name"], "String");
+			}
+			if (data.hasOwnProperty("requestDate")) {
+				obj["requestDate"] = ApiClient.convertToType(
+					data["requestDate"],
+					"String"
+				);
+			}
+		}
+		return obj;
+	};
 
-  /**
-   * Constructs a new <code>EnhancedSettlementRateIssuedResponse</code>.
-   * @alias module:model/EnhancedSettlementRateIssuedResponse
-   * @class
-   */
-  var exports = function() {
-    var _this = this;
+	/**
+	 * @member {module:model/EnhancedSettlementRateIssued} data
+	 */
+	exports.prototype["data"] = undefined;
+	/**
+	 * The description of the API being called
+	 * @member {String} description
+	 */
+	exports.prototype["description"] = undefined;
+	/**
+	 * The name of the service being requested
+	 * @member {String} name
+	 */
+	exports.prototype["name"] = undefined;
+	/**
+	 * The date and time the API is being called in GMT
+	 * @member {String} requestDate
+	 */
+	exports.prototype["requestDate"] = undefined;
 
-  };
-
-  /**
-   * Constructs a <code>EnhancedSettlementRateIssuedResponse</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/EnhancedSettlementRateIssuedResponse} obj Optional instance to populate.
-   * @return {module:model/EnhancedSettlementRateIssuedResponse} The populated <code>EnhancedSettlementRateIssuedResponse</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('data')) {
-        obj['data'] = EnhancedSettlementRateIssued.constructFromObject(data['data']);
-      }
-      if (data.hasOwnProperty('description')) {
-        obj['description'] = ApiClient.convertToType(data['description'], 'String');
-      }
-      if (data.hasOwnProperty('name')) {
-        obj['name'] = ApiClient.convertToType(data['name'], 'String');
-      }
-      if (data.hasOwnProperty('requestDate')) {
-        obj['requestDate'] = ApiClient.convertToType(data['requestDate'], 'String');
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * @member {module:model/EnhancedSettlementRateIssued} data
-   */
-  exports.prototype['data'] = undefined;
-  /**
-   * The description of the API being called
-   * @member {String} description
-   */
-  exports.prototype['description'] = undefined;
-  /**
-   * The name of the service being requested
-   * @member {String} name
-   */
-  exports.prototype['name'] = undefined;
-  /**
-   * The date and time the API is being called in GMT
-   * @member {String} requestDate
-   */
-  exports.prototype['requestDate'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16,"./EnhancedSettlementRateIssued":32}],34:[function(require,module,exports){
 /**
@@ -7089,71 +7347,68 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient', 'model/Errors'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('./Errors'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.ErrorResponse = factory(root.EnhancedCurrencyConversionCalculator.ApiClient, root.EnhancedCurrencyConversionCalculator.Errors);
-  }
-}(this, function(ApiClient, Errors) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient", "model/Errors"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(require("../ApiClient"), require("./Errors"));
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.ErrorResponse = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient,
+			root.EnhancedCurrencyConversionCalculator.Errors
+		);
+	}
+})(this, function (ApiClient, Errors) {
+	"use strict";
 
+	/**
+	 * The ErrorResponse model module.
+	 * @module model/ErrorResponse
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>ErrorResponse</code>.
+	 * @alias module:model/ErrorResponse
+	 * @class
+	 * @param errors {module:model/Errors}
+	 */
+	var exports = function (errors) {
+		var _this = this;
 
-  /**
-   * The ErrorResponse model module.
-   * @module model/ErrorResponse
-   * @version 1.0.0
-   */
+		_this["Errors"] = errors;
+	};
 
-  /**
-   * Constructs a new <code>ErrorResponse</code>.
-   * @alias module:model/ErrorResponse
-   * @class
-   * @param errors {module:model/Errors} 
-   */
-  var exports = function(errors) {
-    var _this = this;
+	/**
+	 * Constructs a <code>ErrorResponse</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/ErrorResponse} obj Optional instance to populate.
+	 * @return {module:model/ErrorResponse} The populated <code>ErrorResponse</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("Errors")) {
+				obj["Errors"] = Errors.constructFromObject(data["Errors"]);
+			}
+		}
+		return obj;
+	};
 
-    _this['Errors'] = errors;
-  };
+	/**
+	 * @member {module:model/Errors} Errors
+	 */
+	exports.prototype["Errors"] = undefined;
 
-  /**
-   * Constructs a <code>ErrorResponse</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/ErrorResponse} obj Optional instance to populate.
-   * @return {module:model/ErrorResponse} The populated <code>ErrorResponse</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('Errors')) {
-        obj['Errors'] = Errors.constructFromObject(data['Errors']);
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * @member {module:model/Errors} Errors
-   */
-  exports.prototype['Errors'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16,"./Errors":35}],35:[function(require,module,exports){
 /**
@@ -7172,71 +7427,73 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient', 'model/EcbError'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'), require('./EcbError'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.Errors = factory(root.EnhancedCurrencyConversionCalculator.ApiClient, root.EnhancedCurrencyConversionCalculator.EcbError);
-  }
-}(this, function(ApiClient, EcbError) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient", "model/EcbError"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(
+			require("../ApiClient"),
+			require("./EcbError")
+		);
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.Errors = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient,
+			root.EnhancedCurrencyConversionCalculator.EcbError
+		);
+	}
+})(this, function (ApiClient, EcbError) {
+	"use strict";
 
+	/**
+	 * The Errors model module.
+	 * @module model/Errors
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>Errors</code>.
+	 * @alias module:model/Errors
+	 * @class
+	 * @param error {Array.<module:model/EcbError>}
+	 */
+	var exports = function (error) {
+		var _this = this;
 
-  /**
-   * The Errors model module.
-   * @module model/Errors
-   * @version 1.0.0
-   */
+		_this["Error"] = error;
+	};
 
-  /**
-   * Constructs a new <code>Errors</code>.
-   * @alias module:model/Errors
-   * @class
-   * @param error {Array.<module:model/EcbError>} 
-   */
-  var exports = function(error) {
-    var _this = this;
+	/**
+	 * Constructs a <code>Errors</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/Errors} obj Optional instance to populate.
+	 * @return {module:model/Errors} The populated <code>Errors</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("Error")) {
+				obj["Error"] = ApiClient.convertToType(data["Error"], [
+					EcbError,
+				]);
+			}
+		}
+		return obj;
+	};
 
-    _this['Error'] = error;
-  };
+	/**
+	 * @member {Array.<module:model/EcbError>} Error
+	 */
+	exports.prototype["Error"] = undefined;
 
-  /**
-   * Constructs a <code>Errors</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/Errors} obj Optional instance to populate.
-   * @return {module:model/Errors} The populated <code>Errors</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('Error')) {
-        obj['Error'] = ApiClient.convertToType(data['Error'], [EcbError]);
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * @member {Array.<module:model/EcbError>} Error
-   */
-  exports.prototype['Error'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16,"./EcbError":23}],36:[function(require,module,exports){
 /**
@@ -7255,117 +7512,133 @@ exports.cleanHeader = function (header, changesOrigin) {
  *
  */
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['ApiClient'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'));
-  } else {
-    // Browser globals (root is window)
-    if (!root.EnhancedCurrencyConversionCalculator) {
-      root.EnhancedCurrencyConversionCalculator = {};
-    }
-    root.EnhancedCurrencyConversionCalculator.MastercardConversionObject = factory(root.EnhancedCurrencyConversionCalculator.ApiClient);
-  }
-}(this, function(ApiClient) {
-  'use strict';
+(function (root, factory) {
+	if (typeof define === "function" && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(["ApiClient"], factory);
+	} else if (typeof module === "object" && module.exports) {
+		// CommonJS-like environments that support module.exports, like Node.
+		module.exports = factory(require("../ApiClient"));
+	} else {
+		// Browser globals (root is window)
+		if (!root.EnhancedCurrencyConversionCalculator) {
+			root.EnhancedCurrencyConversionCalculator = {};
+		}
+		root.EnhancedCurrencyConversionCalculator.MastercardConversionObject = factory(
+			root.EnhancedCurrencyConversionCalculator.ApiClient
+		);
+	}
+})(this, function (ApiClient) {
+	"use strict";
 
+	/**
+	 * The MastercardConversionObject model module.
+	 * @module model/MastercardConversionObject
+	 * @version 1.0.0
+	 */
 
+	/**
+	 * Constructs a new <code>MastercardConversionObject</code>.
+	 * @alias module:model/MastercardConversionObject
+	 * @class
+	 */
+	var exports = function () {
+		var _this = this;
+	};
 
-  /**
-   * The MastercardConversionObject model module.
-   * @module model/MastercardConversionObject
-   * @version 1.0.0
-   */
+	/**
+	 * Constructs a <code>MastercardConversionObject</code> from a plain JavaScript object, optionally creating a new instance.
+	 * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
+	 * @param {Object} data The plain JavaScript object bearing properties of interest.
+	 * @param {module:model/MastercardConversionObject} obj Optional instance to populate.
+	 * @return {module:model/MastercardConversionObject} The populated <code>MastercardConversionObject</code> instance.
+	 */
+	exports.constructFromObject = function (data, obj) {
+		if (data) {
+			obj = obj || new exports();
+			if (data.hasOwnProperty("crdhldBillAmtExclAllFees")) {
+				obj["crdhldBillAmtExclAllFees"] = ApiClient.convertToType(
+					data["crdhldBillAmtExclAllFees"],
+					"Number"
+				);
+			}
+			if (data.hasOwnProperty("crdhldBillAmtInclAllFees")) {
+				obj["crdhldBillAmtInclAllFees"] = ApiClient.convertToType(
+					data["crdhldBillAmtInclAllFees"],
+					"Number"
+				);
+			}
+			if (data.hasOwnProperty("mastercardConvRateExclAllFees")) {
+				obj["mastercardConvRateExclAllFees"] = ApiClient.convertToType(
+					data["mastercardConvRateExclAllFees"],
+					"Number"
+				);
+			}
+			if (data.hasOwnProperty("mastercardConvRateInclPctFee")) {
+				obj["mastercardConvRateInclPctFee"] = ApiClient.convertToType(
+					data["mastercardConvRateInclPctFee"],
+					"Number"
+				);
+			}
+			if (data.hasOwnProperty("mastercardFxRateDate")) {
+				obj["mastercardFxRateDate"] = ApiClient.convertToType(
+					data["mastercardFxRateDate"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("message")) {
+				obj["message"] = ApiClient.convertToType(
+					data["message"],
+					"String"
+				);
+			}
+			if (data.hasOwnProperty("reasonCode")) {
+				obj["reasonCode"] = ApiClient.convertToType(
+					data["reasonCode"],
+					"String"
+				);
+			}
+		}
+		return obj;
+	};
 
-  /**
-   * Constructs a new <code>MastercardConversionObject</code>.
-   * @alias module:model/MastercardConversionObject
-   * @class
-   */
-  var exports = function() {
-    var _this = this;
+	/**
+	 * Cardholder billing amount calculated by using the Mastercard conversion rate, excluding any applicable issuer-to-cardholder fees
+	 * @member {Number} crdhldBillAmtExclAllFees
+	 */
+	exports.prototype["crdhldBillAmtExclAllFees"] = undefined;
+	/**
+	 * Cardholder Billing Amount as calculated by applying the Mastercard Conversion Rate, including any applicable issuer-to-cardholder fees (percentage and fixed)
+	 * @member {Number} crdhldBillAmtInclAllFees
+	 */
+	exports.prototype["crdhldBillAmtInclAllFees"] = undefined;
+	/**
+	 * Mastercard exchange rate for the requested currency pair excluding any issuer-to-cardholder fees
+	 * @member {Number} mastercardConvRateExclAllFees
+	 */
+	exports.prototype["mastercardConvRateExclAllFees"] = undefined;
+	/**
+	 * Mastercard exchange rate for the requested currency pair including issuer-to-cardholder percentage rate fee as provided by the issuer in the API call
+	 * @member {Number} mastercardConvRateInclPctFee
+	 */
+	exports.prototype["mastercardConvRateInclPctFee"] = undefined;
+	/**
+	 * Date of Mastercard issued conversion rates. The date can differ to the requested rate date if no new rates are published for the requested date or if the user requests for a historical date
+	 * @member {String} mastercardFxRateDate
+	 */
+	exports.prototype["mastercardFxRateDate"] = undefined;
+	/**
+	 * User friendly message (if applicable)
+	 * @member {String} message
+	 */
+	exports.prototype["message"] = undefined;
+	/**
+	 * User friendly reason code (if applicable)
+	 * @member {String} reasonCode
+	 */
+	exports.prototype["reasonCode"] = undefined;
 
-  };
-
-  /**
-   * Constructs a <code>MastercardConversionObject</code> from a plain JavaScript object, optionally creating a new instance.
-   * Copies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.
-   * @param {Object} data The plain JavaScript object bearing properties of interest.
-   * @param {module:model/MastercardConversionObject} obj Optional instance to populate.
-   * @return {module:model/MastercardConversionObject} The populated <code>MastercardConversionObject</code> instance.
-   */
-  exports.constructFromObject = function(data, obj) {
-    if (data) {
-      obj = obj || new exports();
-      if (data.hasOwnProperty('crdhldBillAmtExclAllFees')) {
-        obj['crdhldBillAmtExclAllFees'] = ApiClient.convertToType(data['crdhldBillAmtExclAllFees'], 'Number');
-      }
-      if (data.hasOwnProperty('crdhldBillAmtInclAllFees')) {
-        obj['crdhldBillAmtInclAllFees'] = ApiClient.convertToType(data['crdhldBillAmtInclAllFees'], 'Number');
-      }
-      if (data.hasOwnProperty('mastercardConvRateExclAllFees')) {
-        obj['mastercardConvRateExclAllFees'] = ApiClient.convertToType(data['mastercardConvRateExclAllFees'], 'Number');
-      }
-      if (data.hasOwnProperty('mastercardConvRateInclPctFee')) {
-        obj['mastercardConvRateInclPctFee'] = ApiClient.convertToType(data['mastercardConvRateInclPctFee'], 'Number');
-      }
-      if (data.hasOwnProperty('mastercardFxRateDate')) {
-        obj['mastercardFxRateDate'] = ApiClient.convertToType(data['mastercardFxRateDate'], 'String');
-      }
-      if (data.hasOwnProperty('message')) {
-        obj['message'] = ApiClient.convertToType(data['message'], 'String');
-      }
-      if (data.hasOwnProperty('reasonCode')) {
-        obj['reasonCode'] = ApiClient.convertToType(data['reasonCode'], 'String');
-      }
-    }
-    return obj;
-  }
-
-  /**
-   * Cardholder billing amount calculated by using the Mastercard conversion rate, excluding any applicable issuer-to-cardholder fees
-   * @member {Number} crdhldBillAmtExclAllFees
-   */
-  exports.prototype['crdhldBillAmtExclAllFees'] = undefined;
-  /**
-   * Cardholder Billing Amount as calculated by applying the Mastercard Conversion Rate, including any applicable issuer-to-cardholder fees (percentage and fixed)
-   * @member {Number} crdhldBillAmtInclAllFees
-   */
-  exports.prototype['crdhldBillAmtInclAllFees'] = undefined;
-  /**
-   * Mastercard exchange rate for the requested currency pair excluding any issuer-to-cardholder fees
-   * @member {Number} mastercardConvRateExclAllFees
-   */
-  exports.prototype['mastercardConvRateExclAllFees'] = undefined;
-  /**
-   * Mastercard exchange rate for the requested currency pair including issuer-to-cardholder percentage rate fee as provided by the issuer in the API call
-   * @member {Number} mastercardConvRateInclPctFee
-   */
-  exports.prototype['mastercardConvRateInclPctFee'] = undefined;
-  /**
-   * Date of Mastercard issued conversion rates. The date can differ to the requested rate date if no new rates are published for the requested date or if the user requests for a historical date
-   * @member {String} mastercardFxRateDate
-   */
-  exports.prototype['mastercardFxRateDate'] = undefined;
-  /**
-   * User friendly message (if applicable)
-   * @member {String} message
-   */
-  exports.prototype['message'] = undefined;
-  /**
-   * User friendly reason code (if applicable)
-   * @member {String} reasonCode
-   */
-  exports.prototype['reasonCode'] = undefined;
-
-
-
-  return exports;
-}));
-
-
+	return exports;
+});
 
 },{"../ApiClient":16}]},{},[21]);
